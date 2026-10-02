@@ -22,13 +22,17 @@ function initStudioApp() {
     }
 
     init() {
-      if (!this.ctx) {
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        this.ctx = new AudioContext();
-      }
-      if (this.ctx.state === 'suspended') {
-        this.ctx.resume();
-      }
+      try {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) {
+            this.ctx = new AudioContext();
+          }
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume().catch(() => {});
+        }
+      } catch (e) {}
     }
 
     playClickSound() {
@@ -137,11 +141,10 @@ function initStudioApp() {
     hasDismissed = true;
 
     try {
-      sound.init();
-      sound.playShutterSound();
-    } catch (e) {
-      console.warn(e);
-    }
+      if (sound && sound.ctx && sound.ctx.state === 'running') {
+        sound.playShutterSound();
+      }
+    } catch (e) {}
 
     if (loaderVideo) {
       try {
@@ -162,41 +165,49 @@ function initStudioApp() {
   }
 
   if (loaderVideo) {
-    // 1. Ensure video starts playing immediately on page load
-    loaderVideo.muted = true; // Native muted ensures browsers allow instant start
-    const playPromise = loaderVideo.play();
+    // 1. Ensure video starts playing immediately on page load in muted mode
+    // (Chromium and iOS WebKit strictly pause the video element if muted=false before user gesture)
+    loaderVideo.muted = true;
+    loaderVideo.defaultMuted = true;
 
-    // 2. Unmute attempt for compulsory video audio
-    const tryUnmute = () => {
+    const startPlayback = () => {
+      const p = loaderVideo.play();
+      if (p !== undefined) {
+        p.catch(() => {
+          loaderVideo.muted = true;
+          loaderVideo.play().catch(() => {});
+        });
+      }
+    };
+    startPlayback();
+
+    // 2. Unmute and unlock pure video audio on ANY user touch/click/gesture
+    const unlockAudio = () => {
       try {
         loaderVideo.muted = false;
         loaderVideo.volume = 1.0;
+        if (loaderVideo.paused) {
+          loaderVideo.play().catch(() => {});
+        }
       } catch (e) {}
-    };
 
-    if (playPromise !== undefined) {
-      playPromise.then(() => {
-        // Video playing smoothly, attempt immediate audio activation
-        tryUnmute();
-      }).catch((err) => {
-        console.warn('Playback retry muted:', err);
-        loaderVideo.muted = true;
-        loaderVideo.play().catch(() => {});
-      });
-    }
+      try {
+        sound.init();
+      } catch (e) {}
 
-    // 3. Compulsory audio unlock on ANY interaction (instant touch/click)
-    const forceAudioOnInteraction = () => {
-      tryUnmute();
-      try { sound.init(); } catch (e) {}
-      ['touchstart', 'touchend', 'click', 'pointerdown', 'keydown', 'scroll'].forEach(evt => {
-        window.removeEventListener(evt, forceAudioOnInteraction);
+      ['touchstart', 'touchend', 'click', 'pointerdown', 'keydown'].forEach(evt => {
+        window.removeEventListener(evt, unlockAudio);
       });
     };
 
-    ['touchstart', 'touchend', 'click', 'pointerdown', 'keydown', 'scroll'].forEach(evt => {
-      window.addEventListener(evt, forceAudioOnInteraction, { passive: true, once: true });
+    ['touchstart', 'touchend', 'click', 'pointerdown', 'keydown'].forEach(evt => {
+      window.addEventListener(evt, unlockAudio, { passive: true, once: true });
     });
+
+    if (preloader) {
+      preloader.addEventListener('click', unlockAudio, { once: true });
+      preloader.addEventListener('touchstart', unlockAudio, { passive: true, once: true });
+    }
 
     // 4. Auto-dismiss when 8-second video completes
     loaderVideo.addEventListener('ended', () => {
@@ -545,18 +556,22 @@ function initStudioApp() {
       }
     });
 
-    // Gear Arsenal Stagger Animation
-    gsap.from('.gear-card', {
-      scrollTrigger: {
-        trigger: '.arsenal-section',
-        start: 'top 75%',
-      },
-      y: 60,
-      opacity: 0,
-      stagger: 0.12,
-      duration: 0.9,
-      ease: 'power3.out',
-    });
+    // Gear Arsenal Stagger Animation (check elements first)
+    const gearCards = document.querySelectorAll('.gear-card');
+    const arsenalSec = document.querySelector('.arsenal-section');
+    if (gearCards.length && arsenalSec) {
+      gsap.from('.gear-card', {
+        scrollTrigger: {
+          trigger: '.arsenal-section',
+          start: 'top 75%',
+        },
+        y: 60,
+        opacity: 0,
+        stagger: 0.12,
+        duration: 0.9,
+        ease: 'power3.out',
+      });
+    }
 
     // Timeline Steps Stagger
     gsap.from('.timeline-step', {
