@@ -151,72 +151,99 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnLoaderAudio = document.getElementById('btnLoaderAudio');
     const loaderAudioIcon = document.getElementById('loaderAudioIcon');
     const loaderAudioText = document.getElementById('loaderAudioText');
-    const loaderUnmutePill = document.getElementById('loaderUnmutePill');
+    const loaderAudioGate = document.getElementById('loaderAudioGate');
+    const btnEnterAudioGate = document.getElementById('btnEnterAudioGate');
 
-    function enableVideoAudio() {
+    let videoStartedWithAudio = false;
+
+    function startExperienceWithSound() {
+      if (videoStartedWithAudio) return;
+      videoStartedWithAudio = true;
+
       sound.init();
+      sound.playClickSound();
+
+      if (loaderAudioGate) {
+        loaderAudioGate.classList.add('gate-dismissed');
+        setTimeout(() => {
+          loaderAudioGate.style.display = 'none';
+        }, 600);
+      }
+
       loaderVideo.muted = false;
       loaderVideo.volume = 1.0;
+      loaderVideo.currentTime = 0;
+      loaderVideo.play().catch(() => {
+        loaderVideo.muted = true;
+        loaderVideo.play().then(() => {
+          loaderVideo.muted = false;
+        }).catch(() => {});
+      });
+
       if (loaderAudioIcon) loaderAudioIcon.setAttribute('data-lucide', 'volume-2');
       if (loaderAudioText) loaderAudioText.textContent = 'AUDIO ACTIVE';
-      if (loaderUnmutePill) loaderUnmutePill.classList.add('hidden');
       if (window.lucide) window.lucide.createIcons();
     }
 
     function toggleVideoAudio() {
       if (loaderVideo.muted) {
-        enableVideoAudio();
+        loaderVideo.muted = false;
+        loaderVideo.volume = 1.0;
+        if (loaderAudioIcon) loaderAudioIcon.setAttribute('data-lucide', 'volume-2');
+        if (loaderAudioText) loaderAudioText.textContent = 'AUDIO ACTIVE';
       } else {
         loaderVideo.muted = true;
         if (loaderAudioIcon) loaderAudioIcon.setAttribute('data-lucide', 'volume-x');
         if (loaderAudioText) loaderAudioText.textContent = 'AUDIO MUTED';
-        if (loaderUnmutePill) loaderUnmutePill.classList.remove('hidden');
-        if (window.lucide) window.lucide.createIcons();
       }
+      if (window.lucide) window.lucide.createIcons();
     }
 
-    // Try unmuted playback first
+    // Try immediate unmuted playback
     loaderVideo.muted = false;
     loaderVideo.volume = 1.0;
     
     const initialPlay = loaderVideo.play();
     if (initialPlay !== undefined) {
       initialPlay.then(() => {
-        // Unmuted playback succeeded
-        enableVideoAudio();
-      }).catch(() => {
-        // Browser blocked unmuted autoplay -> play muted and prompt user to unmute
-        loaderVideo.muted = true;
-        loaderVideo.play().catch(() => {});
-        if (loaderAudioIcon) loaderAudioIcon.setAttribute('data-lucide', 'volume-x');
-        if (loaderAudioText) loaderAudioText.textContent = 'CLICK FOR AUDIO';
-        if (loaderUnmutePill) loaderUnmutePill.classList.remove('hidden');
+        // Unmuted playback allowed directly by browser
+        videoStartedWithAudio = true;
+        if (loaderAudioGate) {
+          loaderAudioGate.classList.add('gate-dismissed');
+          loaderAudioGate.style.display = 'none';
+        }
+        if (loaderAudioIcon) loaderAudioIcon.setAttribute('data-lucide', 'volume-2');
+        if (loaderAudioText) loaderAudioText.textContent = 'AUDIO ACTIVE';
         if (window.lucide) window.lucide.createIcons();
-
-        // Compulsory instant unmute on ANY user gesture (tap/click/key)
-        const unlockAudio = () => {
-          enableVideoAudio();
-          window.removeEventListener('touchstart', unlockAudio);
-          window.removeEventListener('click', unlockAudio);
-          window.removeEventListener('keydown', unlockAudio);
-        };
-        window.addEventListener('touchstart', unlockAudio, { passive: true });
-        window.addEventListener('click', unlockAudio, { passive: true });
-        window.addEventListener('keydown', unlockAudio, { passive: true });
+      }).catch(() => {
+        // Browser requires gesture -> pause video at 0 and present Compulsory Audio Gate
+        loaderVideo.pause();
+        loaderVideo.currentTime = 0;
+        if (loaderAudioGate) loaderAudioGate.classList.remove('gate-dismissed');
       });
+    }
+
+    // Click / Touch handlers for compulsory audio entry gate
+    if (btnEnterAudioGate) {
+      btnEnterAudioGate.addEventListener('click', (e) => {
+        e.stopPropagation();
+        startExperienceWithSound();
+      });
+    }
+
+    if (loaderAudioGate) {
+      loaderAudioGate.addEventListener('click', () => {
+        startExperienceWithSound();
+      });
+      loaderAudioGate.addEventListener('touchstart', () => {
+        startExperienceWithSound();
+      }, { passive: true });
     }
 
     if (btnLoaderAudio) {
       btnLoaderAudio.addEventListener('click', (e) => {
         e.stopPropagation();
         toggleVideoAudio();
-      });
-    }
-
-    if (loaderUnmutePill) {
-      loaderUnmutePill.addEventListener('click', (e) => {
-        e.stopPropagation();
-        enableVideoAudio();
       });
     }
 
@@ -232,10 +259,12 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    // Fallback safety: If video duration is 8s or upon completion
-    setTimeout(() => {
-      dismissPreloader();
-    }, 8500);
+    // Fallback safety (if video is playing)
+    setInterval(() => {
+      if (videoStartedWithAudio && loaderVideo.duration && loaderVideo.currentTime >= loaderVideo.duration - 0.2) {
+        dismissPreloader();
+      }
+    }, 500);
   } else {
     setTimeout(dismissPreloader, 8000);
   }
