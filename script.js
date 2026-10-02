@@ -4,7 +4,7 @@
  * Camera Preloader, Before/After Color Grade Slider, Side-by-Side Video Controls.
  */
 
-document.addEventListener('DOMContentLoaded', () => {
+function initStudioApp() {
   // Initialize Lucide Icons
   if (window.lucide) {
     window.lucide.createIcons();
@@ -133,70 +133,95 @@ document.addEventListener('DOMContentLoaded', () => {
   let hasDismissed = false;
 
   function dismissPreloader() {
-    if (hasDismissed || !preloader) return;
+    if (hasDismissed) return;
     hasDismissed = true;
 
-    sound.init();
-    sound.playShutterSound();
+    try {
+      sound.init();
+      sound.playShutterSound();
+    } catch (e) {
+      console.warn(e);
+    }
 
-    preloader.classList.add('preloader-hidden');
-    setTimeout(() => {
-      preloader.style.display = 'none';
-      initScrollAnimations();
-    }, 1000);
+    if (loaderVideo) {
+      try {
+        loaderVideo.pause();
+      } catch (e) {}
+    }
+
+    if (preloader) {
+      preloader.classList.add('preloader-hidden');
+      setTimeout(() => {
+        preloader.style.display = 'none';
+        initScrollAnimations();
+        if (window.ScrollTrigger) {
+          ScrollTrigger.refresh();
+        }
+      }, 900);
+    }
   }
 
   if (loaderVideo) {
-    // Direct audio video playback
-    loaderVideo.muted = false;
-    loaderVideo.volume = 1.0;
-
+    // 1. Ensure video starts playing immediately on page load
+    loaderVideo.muted = true; // Native muted ensures browsers allow instant start
     const playPromise = loaderVideo.play();
+
+    // 2. Unmute attempt for compulsory video audio
+    const tryUnmute = () => {
+      try {
+        loaderVideo.muted = false;
+        loaderVideo.volume = 1.0;
+      } catch (e) {}
+    };
+
     if (playPromise !== undefined) {
       playPromise.then(() => {
-        sound.init();
-      }).catch(() => {
-        // Fallback: start video smoothly and unmute on first user touch/click seamlessly
+        // Video playing smoothly, attempt immediate audio activation
+        tryUnmute();
+      }).catch((err) => {
+        console.warn('Playback retry muted:', err);
         loaderVideo.muted = true;
         loaderVideo.play().catch(() => {});
-
-        const unmuteOnInteraction = () => {
-          loaderVideo.muted = false;
-          loaderVideo.volume = 1.0;
-          sound.init();
-          window.removeEventListener('touchstart', unmuteOnInteraction);
-          window.removeEventListener('click', unmuteOnInteraction);
-          window.removeEventListener('scroll', unmuteOnInteraction);
-        };
-        window.addEventListener('touchstart', unmuteOnInteraction, { passive: true, once: true });
-        window.addEventListener('click', unmuteOnInteraction, { once: true });
-        window.addEventListener('scroll', unmuteOnInteraction, { passive: true, once: true });
       });
     }
 
-    // Auto-dismiss preloader when video finishes playing (8 seconds)
+    // 3. Compulsory audio unlock on ANY interaction (instant touch/click)
+    const forceAudioOnInteraction = () => {
+      tryUnmute();
+      try { sound.init(); } catch (e) {}
+      ['touchstart', 'touchend', 'click', 'pointerdown', 'keydown', 'scroll'].forEach(evt => {
+        window.removeEventListener(evt, forceAudioOnInteraction);
+      });
+    };
+
+    ['touchstart', 'touchend', 'click', 'pointerdown', 'keydown', 'scroll'].forEach(evt => {
+      window.addEventListener(evt, forceAudioOnInteraction, { passive: true, once: true });
+    });
+
+    // 4. Auto-dismiss when 8-second video completes
     loaderVideo.addEventListener('ended', () => {
       dismissPreloader();
     });
 
-    // Time-based check for 8-second duration
+    // 5. Dismiss slightly before video ends for a seamless transition
     loaderVideo.addEventListener('timeupdate', () => {
       if (loaderVideo.duration && loaderVideo.currentTime >= loaderVideo.duration - 0.25) {
         dismissPreloader();
       }
     });
 
-    // Fallback safety: guarantee transition to landing page after 8.5s
+    // 6. Absolute fail-safe: guarantee transition to landing page after 8.2s
     setTimeout(() => {
       dismissPreloader();
-    }, 8500);
+    }, 8200);
   } else {
-    setTimeout(dismissPreloader, 8000);
+    setTimeout(dismissPreloader, 4000);
   }
 
   // Skip button click
   if (btnSkipLoader) {
-    btnSkipLoader.addEventListener('click', () => {
+    btnSkipLoader.addEventListener('click', (e) => {
+      e.stopPropagation();
       dismissPreloader();
     });
   }
@@ -856,31 +881,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  /* ==========================================================================
-     13. MOBILE DRAWER NAVIGATION
-     ========================================================================== */
-  const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-  const mobileDrawer = document.getElementById('mobileDrawer');
-  const closeDrawerBtn = document.getElementById('closeDrawerBtn');
-  const mobileLinks = document.querySelectorAll('.mobile-link');
-
-  if (mobileMenuBtn && mobileDrawer) {
-    mobileMenuBtn.addEventListener('click', () => {
-      sound.playClickSound();
-      mobileDrawer.classList.add('open');
-    });
-
-    closeDrawerBtn?.addEventListener('click', () => {
-      sound.playClickSound();
-      mobileDrawer.classList.remove('open');
-    });
-
-    mobileLinks.forEach((link) => {
-      link.addEventListener('click', () => {
-        mobileDrawer.classList.remove('open');
-      });
-    });
-  }
 
   /* ==========================================================================
      14. INQUIRY FORM SUBMISSION
@@ -912,4 +912,10 @@ document.addEventListener('DOMContentLoaded', () => {
       }, 1200);
     });
   }
-});
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initStudioApp);
+} else {
+  initStudioApp();
+}
