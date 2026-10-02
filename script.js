@@ -134,7 +134,6 @@ function initStudioApp() {
   const preloader = document.getElementById('preloader');
   const loaderVideo = document.getElementById('loaderVideo');
   const btnSkipLoader = document.getElementById('btnSkipLoader');
-  const btnAudioPrompt = document.getElementById('btnAudioPrompt');
   let hasDismissed = false;
 
   function dismissPreloader() {
@@ -166,74 +165,61 @@ function initStudioApp() {
   }
 
   if (loaderVideo) {
-    // 1. Ensure video starts playing immediately on page load in muted mode
-    // (Chromium and iOS WebKit strictly pause the video element if muted=false before user gesture)
-    loaderVideo.muted = true;
-    loaderVideo.defaultMuted = true;
+    // Compulsory pure audio video playback
+    loaderVideo.muted = false;
+    loaderVideo.volume = 1.0;
 
-    const startPlayback = () => {
+    const startDirectAudioPlayback = () => {
       const p = loaderVideo.play();
       if (p !== undefined) {
-        p.catch(() => {
+        p.then(() => {
+          // Direct audio playback active
+          try { sound.init(); } catch (e) {}
+        }).catch(() => {
+          // If browser restricts unmuted autoplay until user touch:
+          // Keep video streaming smoothly and unlock full audio on the absolute first touch
           loaderVideo.muted = true;
           loaderVideo.play().catch(() => {});
+
+          const forceAudioInstant = () => {
+            loaderVideo.muted = false;
+            loaderVideo.volume = 1.0;
+            if (loaderVideo.paused) {
+              loaderVideo.play().catch(() => {});
+            }
+            try { sound.init(); } catch (e) {}
+            ['touchstart', 'touchend', 'click', 'pointerdown', 'keydown', 'scroll'].forEach(evt => {
+              window.removeEventListener(evt, forceAudioInstant);
+            });
+          };
+
+          ['touchstart', 'touchend', 'click', 'pointerdown', 'keydown', 'scroll'].forEach(evt => {
+            window.addEventListener(evt, forceAudioInstant, { passive: true, once: true });
+          });
+
+          if (preloader) {
+            preloader.addEventListener('click', forceAudioInstant, { once: true });
+            preloader.addEventListener('touchstart', forceAudioInstant, { passive: true, once: true });
+          }
         });
       }
     };
-    startPlayback();
 
-    // 2. Unmute and unlock pure video audio on ANY user touch/click/gesture
-    const unlockAudio = () => {
-      try {
-        loaderVideo.muted = false;
-        loaderVideo.volume = 1.0;
-        if (loaderVideo.paused) {
-          loaderVideo.play().catch(() => {});
-        }
-      } catch (e) {}
+    startDirectAudioPlayback();
 
-      if (btnAudioPrompt) {
-        btnAudioPrompt.classList.add('hidden');
-      }
-
-      try {
-        sound.init();
-      } catch (e) {}
-
-      ['touchstart', 'touchend', 'click', 'pointerdown', 'keydown'].forEach(evt => {
-        window.removeEventListener(evt, unlockAudio);
-      });
-    };
-
-    ['touchstart', 'touchend', 'click', 'pointerdown', 'keydown'].forEach(evt => {
-      window.addEventListener(evt, unlockAudio, { passive: true, once: true });
-    });
-
-    if (btnAudioPrompt) {
-      btnAudioPrompt.addEventListener('click', (e) => {
-        e.stopPropagation();
-        unlockAudio();
-      });
-    }
-
-    if (preloader) {
-      preloader.addEventListener('click', unlockAudio, { once: true });
-      preloader.addEventListener('touchstart', unlockAudio, { passive: true, once: true });
-    }
-
-    // 4. Auto-dismiss when 8-second video completes
+    // Auto-dismiss when 8-second video completes
     loaderVideo.addEventListener('ended', () => {
       dismissPreloader();
     });
 
-    // 5. Dismiss slightly before video ends for a seamless transition
+    // Dismiss slightly before video ends for a seamless transition
     loaderVideo.addEventListener('timeupdate', () => {
       if (loaderVideo.duration && loaderVideo.currentTime >= loaderVideo.duration - 0.25) {
         dismissPreloader();
       }
     });
 
-    // 6. Absolute fail-safe: guarantee transition to landing page after 8.2s
+    // Absolute fail-safe: guarantee transition to landing page after 8.2s
     setTimeout(() => {
       dismissPreloader();
     }, 8200);
