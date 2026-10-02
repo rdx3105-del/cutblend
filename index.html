@@ -1,0 +1,1493 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CUT BLEND | Cinema Studio & Photography Portfolio</title>
+  <meta name="description" content="Next-generation cinematic video editing, commercial production, automotive films, luxury wedding cinematography, and influencer visuals.">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Syne:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <!-- GSAP & Lenis Smooth Scroll CDNs -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://unpkg.com/lenis@1.1.18/dist/lenis.min.js"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-obsidian text-gold-light antialiased overflow-x-hidden">
+
+  <!-- CUSTOM MOUSE CURSOR & TRAIL -->
+  <div id="custom-cursor" class="custom-cursor"></div>
+  <div id="cursor-follower" class="cursor-follower">
+    <span class="cursor-text" id="cursor-text">EXPLORE</span>
+  </div>
+
+  <!-- HUD VIEWFINDER OVERLAY (Minimal Gold Viewfinder Mode) -->
+  <div class="cinema-hud pointer-events-none" id="cinemaHud">
+    <div class="hud-top">
+      <div class="hud-item"><span class="rec-dot"></span> <span class="mono-text">REC [4K 120FPS]</span></div>
+      <div class="hud-item mono-text" id="hudTimecode">00:00:00:00</div>
+      <div class="hud-item mono-text">ISO 800 • 5600K</div>
+    </div>
+    <div class="hud-corners">
+      <span class="corner tl"></span>
+      <span class="corner tr"></span>
+      <span class="corner bl"></span>
+      <span class="corner br"></span>
+      <span class="hud-crosshair">+</span>
+    </div>
+    <div class="hud-bottom">
+      <div class="hud-item mono-text">AUDIO <span class="audio-bars"><i></i><i></i><i></i><i></i><i></i></span></div>
+      <div class="hud-item mono-text">CINEMA RIG • 35mm T1.5</div>
+      <div class="hud-item mono-text">BATTERY 100% ⚡</div>
+    </div>
+  </div>
+
+  <!-- FLOATING DOCK -->
+  <div class="floating-dock">
+    <button class="dock-btn" id="audioToggleBtn" title="Toggle Sound" aria-label="Toggle Sound">
+      <i data-lucide="volume-x" id="audioIcon"></i>
+      <span class="dock-label">AUDIO</span>
+    </button>
+    <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" class="dock-btn" title="Instagram">
+      <i data-lucide="instagram"></i>
+      <span class="dock-label">INSTAGRAM</span>
+    </a>
+    <a href="#contact" class="dock-btn dock-btn-primary" title="Inquire">
+      <i data-lucide="calendar"></i>
+      <span class="dock-label">INQUIRE</span>
+    </a>
+  </div>
+
+  <!-- =========================================================================
+       PURE 8-SECOND FULL-SCREEN VIDEO LOADING SCREEN (EXCLUSIVE USE OF LOCAL VIDEO)
+       ========================================================================= -->
+  <section id="preloader" class="preloader">
+    <div class="preloader-pure-video-wrap">
+      <video id="loaderVideo" class="preloader-video-pure" autoplay muted playsinline webkit-playsinline x5-playsinline preload="auto">
+        <source src="Sony_FX_camera_product_animation_20261002122038.mp4" type="video/mp4">
+        Your browser does not support HTML5 video.
+      </video>
+    </div>
+    <div class="preloader-gold-shutter-overlay" id="loaderShutter"></div>
+    <button class="preloader-skip-gold" id="btnSkipLoader" aria-label="Skip video intro">
+      <span>SKIP</span>
+      <i data-lucide="chevron-right"></i>
+    </button>
+  </section>
+
+  <!-- MINIMAL ULTRA-CLEAN NAVIGATION -->
+  <header class="studio-header minimal-header" id="mainHeader">
+    <div class="header-container">
+      <a href="#" class="studio-logo">
+        <span class="logo-text">CUT<b>BLEND</b></span>
+      </a>
+
+      <nav class="studio-nav">
+        <ul class="nav-links minimal-nav-links">
+          <li><a href="#showcase" class="nav-link">Films</a></li>
+          <li><a href="#categories" class="nav-link">Sectors</a></li>
+          <li><a href="#instagram-feed" class="nav-link">Instagram</a></li>
+          <li><a href="#colorgrade" class="nav-link">Color Lab</a></li>
+          <li><a href="#workflow" class="nav-link">Process</a></li>
+        </ul>
+      </nav>
+
+      <div class="header-actions">
+        <a href="#contact" class="btn-minimal-gold">
+          <span>Inquire</span>
+        </a>
+        <button class="mobile-toggle-btn" id="mobileMenuBtn" aria-label="Toggle Menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MOBILE NAV DRAWER -->
+  <div class="mobile-nav-drawer" id="mobileDrawer">
+    <div class="drawer-header">
+      <span class="logo-text">CUT<b>BLEND</b></span>
+      <button class="close-drawer-btn" id="closeDrawerBtn"><i data-lucide="x"></i></button>
+    </div>
+    <ul class="mobile-nav-list">
+      <li><a href="#showcase" class="mobile-link">Films</a></li>
+      <li><a href="#categories" class="mobile-link">Sectors</a></li>
+      <li><a href="#instagram-feed" class="mobile-link">Instagram Feed</a></li>
+      <li><a href="#colorgrade" class="mobile-link">Color Lab</a></li>
+      <li><a href="#workflow" class="mobile-link">Process</a></li>
+      <li><a href="#contact" class="mobile-link">Get in Touch</a></li>
+    </ul>
+    <div class="drawer-footer">
+      <p class="mono-text text-muted">CUT BLEND STUDIOS</p>
+    </div>
+  </div>
+
+  <main id="smooth-wrapper">
+    <div id="smooth-content">
+
+      <!-- ==============================================
+           HERO SECTION: MINIMAL GOLD & BLACK CINEMA
+           ============================================== -->
+      <section class="hero-section" id="hero">
+        <div class="hero-ambient-glow glow-gold-1"></div>
+        <div class="hero-ambient-glow glow-gold-2"></div>
+        <canvas id="particlesCanvas" class="particles-canvas"></canvas>
+
+        <div class="hero-container">
+          <div class="hero-headline-wrap">
+            <h1 class="hero-title">
+              <span class="hero-line" data-speed="0.9">WE SCULPT</span>
+              <span class="hero-line hero-gold-gradient-text" data-speed="1.1">HYPER-CINEMATIC</span>
+              <span class="hero-line outline-text-gold" data-speed="1.2">VISUAL MASTERPIECES</span>
+            </h1>
+          </div>
+
+          <p class="hero-subtitle">
+            An elite creative studio elevating high-end <strong>Weddings</strong>, <strong>Supercar Launches</strong>, 
+            <strong>Luxury Hospitality</strong>, and <strong>Viral Social Campaigns</strong> into timeless, heart-pounding films.
+          </p>
+
+          <div class="hero-cta-group">
+            <a href="#showcase" class="btn-primary-magnetic-gold magnetic-target">
+              <span class="btn-bg"></span>
+              <span class="btn-content">
+                <i data-lucide="play" class="fill-current"></i>
+                <span>EXPLORE FILMS</span>
+              </span>
+            </a>
+            <button class="btn-secondary-gold-glass magnetic-target" id="btnHeroShowreel" data-video-title="2026 Master Production Showreel" data-video-src="https://assets.mixkit.co/videos/preview/mixkit-cameraman-filming-with-a-professional-camera-41709-large.mp4" data-genre="Master Cinema Reel" data-specs="Anamorphic Master • DaVinci Color">
+              <i data-lucide="clapperboard"></i>
+              <span>WATCH SHOWREEL</span>
+            </button>
+          </div>
+
+          <!-- HERO INTERACTIVE CAMERA RIG REEL -->
+          <div class="hero-camera-card-wrap">
+            <div class="camera-card-3d gold-framed-card" id="heroCameraCard">
+              <div class="card-glass-layer">
+                <div class="card-video-frame">
+                  <video class="hero-bg-video" autoplay muted loop playsinline poster="https://images.unsplash.com/photo-1518133910546-b6c2fb7d79e3?q=80&w=1200&auto=format&fit=crop">
+                    <source src="https://assets.mixkit.co/videos/preview/mixkit-cameraman-filming-with-a-professional-camera-41709-large.mp4" type="video/mp4">
+                  </video>
+                  <div class="video-overlay-grid"></div>
+                  <div class="card-lens-badge gold-badge">
+                    <span class="lens-dot-gold"></span> MASTER CINEMA RIG
+                  </div>
+                  <button class="btn-play-pulse-gold" id="btnPlayHeroVideo" aria-label="Play full video" data-video-title="2026 Master Production Showreel" data-video-src="https://assets.mixkit.co/videos/preview/mixkit-cameraman-filming-with-a-professional-camera-41709-large.mp4" data-genre="Master Production Reel" data-specs="Cinema Rig • Anamorphic • 4K 120P">
+                    <i data-lucide="play" class="fill-current"></i>
+                  </button>
+                </div>
+                <div class="card-footer-specs">
+                  <div class="spec-col">
+                    <span class="spec-label">DYNAMIC RANGE</span>
+                    <span class="spec-val">15+ STOPS</span>
+                  </div>
+                  <div class="spec-divider"></div>
+                  <div class="spec-col">
+                    <span class="spec-label">COLOR SCIENCE</span>
+                    <span class="spec-val">GOLD PRINT FILM</span>
+                  </div>
+                  <div class="spec-divider"></div>
+                  <div class="spec-col">
+                    <span class="spec-label">FRAME RATE</span>
+                    <span class="spec-val">4K 120P RAW</span>
+                  </div>
+                  <div class="spec-divider"></div>
+                  <div class="spec-col">
+                    <span class="spec-label">AUDIO RIG</span>
+                    <span class="spec-val">32-BIT FLOAT</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- STUDIO STATS STRIP -->
+          <div class="studio-stats-strip">
+            <div class="stat-box-gold" data-tilt>
+              <div class="stat-number-wrap"><span class="counter" data-target="240">0</span><span class="stat-plus-gold">+</span></div>
+              <p class="stat-label">Films Delivered</p>
+              <span class="stat-sub">18 Countries Worldwide</span>
+            </div>
+            <div class="stat-box-gold" data-tilt>
+              <div class="stat-number-wrap"><span class="counter" data-target="150">0</span><span class="stat-plus-gold">M+</span></div>
+              <p class="stat-label">Social Impressions</p>
+              <span class="stat-sub">Viral Growth Driven</span>
+            </div>
+            <div class="stat-box-gold" data-tilt>
+              <div class="stat-number-wrap"><span class="counter" data-target="14">0</span><span class="stat-plus-gold">K</span></div>
+              <p class="stat-label">Hours of Color Grading</p>
+              <span class="stat-sub">Bespoke Film LUTs</span>
+            </div>
+            <div class="stat-box-gold" data-tilt>
+              <div class="stat-number-wrap"><span class="counter" data-target="99">0</span><span class="stat-plus-gold">.8%</span></div>
+              <p class="stat-label">Client Ecstasy Rate</p>
+              <span class="stat-sub">Elite Repeat Network</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==============================================
+           MARQUEE STRIP
+           ============================================== -->
+      <section class="marquee-section">
+        <div class="marquee-track">
+          <div class="marquee-group">
+            <span class="marquee-item">CINEMATIC WEDDINGS</span>
+            <span class="marquee-sep-gold">✦</span>
+            <span class="marquee-item">SUPERCAR COMMERCIALS</span>
+            <span class="marquee-sep-gold">✦</span>
+            <span class="marquee-item">FASHION RUNWAY</span>
+            <span class="marquee-sep-gold">✦</span>
+            <span class="marquee-item">LUXURY RESORTS</span>
+            <span class="marquee-sep-gold">✦</span>
+            <span class="marquee-item">VIRAL REELS & SHORTS</span>
+            <span class="marquee-sep-gold">✦</span>
+            <span class="marquee-item">PRODUCT LAUNCHES</span>
+            <span class="marquee-sep-gold">✦</span>
+          </div>
+          <div class="marquee-group" aria-hidden="true">
+            <span class="marquee-item">CINEMATIC WEDDINGS</span>
+            <span class="marquee-sep-gold">✦</span>
+            <span class="marquee-item">SUPERCAR COMMERCIALS</span>
+            <span class="marquee-sep-gold">✦</span>
+            <span class="marquee-item">FASHION RUNWAY</span>
+            <span class="marquee-sep-gold">✦</span>
+            <span class="marquee-item">LUXURY RESORTS</span>
+            <span class="marquee-sep-gold">✦</span>
+            <span class="marquee-item">VIRAL REELS & SHORTS</span>
+            <span class="marquee-sep-gold">✦</span>
+            <span class="marquee-item">PRODUCT LAUNCHES</span>
+            <span class="marquee-sep-gold">✦</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==============================================
+           SECTION: CATEGORY SELECTOR & FILTER TABS
+           ============================================== -->
+      <section class="section-intro" id="categories">
+        <div class="section-header-pill-gold">
+          <span class="pill-dot-gold"></span>
+          <span>CURATED DISCIPLINES</span>
+        </div>
+        <h2 class="section-title-large">
+          EXPLORE OUR <span class="hero-gold-gradient-text">SPECIALIZED CINEMA</span> GENRES
+        </h2>
+        <p class="section-lead">
+          Every genre requires unique rhythm, lighting geometry, color science, and sound design. Select a category below.
+        </p>
+
+        <div class="category-filters-container">
+          <button class="cat-tab active" data-filter="all">
+            <i data-lucide="layers"></i>
+            <span>All Works</span>
+          </button>
+          <button class="cat-tab" data-filter="weddings">
+            <i data-lucide="heart"></i>
+            <span>Weddings</span>
+          </button>
+          <button class="cat-tab" data-filter="automotive">
+            <i data-lucide="gauge"></i>
+            <span>Automotive</span>
+          </button>
+          <button class="cat-tab" data-filter="hotel">
+            <i data-lucide="palmtree"></i>
+            <span>Hotels & Resorts</span>
+          </button>
+          <button class="cat-tab" data-filter="influencer">
+            <i data-lucide="trending-up"></i>
+            <span>Influencers & Fashion</span>
+          </button>
+          <button class="cat-tab" data-filter="commercial">
+            <i data-lucide="sparkles"></i>
+            <span>Commercial</span>
+          </button>
+        </div>
+      </section>
+
+
+      <!-- =========================================================================
+           PRIMARY SHOWCASE: SIDE-BY-SIDE VIDEO & INFO SECTIONS
+           ========================================================================= -->
+      <section class="showcase-section" id="showcase">
+        
+        <!-- ==================== 01. LUXURY WEDDINGS & ROYAL UNIONS ==================== -->
+        <article class="showcase-row portfolio-item gold-border-hover" data-category="weddings" id="wedding-cinematography">
+          <div class="showcase-grid side-by-side">
+            
+            <!-- LEFT: INFO & CINEMATIC STORYTELLING -->
+            <div class="showcase-info-col scroll-fade-left">
+              <div class="item-chapter-badge-gold">
+                <span class="chapter-num-gold">01</span>
+                <span class="chapter-title">TIMELESS CINEMATOGRAPHY</span>
+              </div>
+              
+              <h3 class="item-heading">
+                Royal Destination <span class="text-gold-gradient">Weddings & Love Epics</span>
+              </h3>
+
+              <div class="item-tags-row">
+                <span class="meta-tag-gold"><i data-lucide="camera"></i> Anamorphic 50mm T2.0</span>
+                <span class="meta-tag-gold"><i data-lucide="film"></i> 2.39:1 Scope</span>
+                <span class="meta-tag-gold"><i data-lucide="sun"></i> Golden Hour Film Print</span>
+              </div>
+
+              <p class="item-description">
+                Weddings are emotional symphonies. We capture intimate glances, regal bridal entries, teardrop vows, and ecstatic midnight celebrations in cinematic 4K 120FPS slow motion, masterfully color-graded with custom orchestration.
+              </p>
+
+              <div class="item-specs-grid">
+                <div class="spec-card-gold">
+                  <div class="spec-card-icon-gold"><i data-lucide="mic"></i></div>
+                  <div class="spec-card-content">
+                    <h4>Multi-Mic Audio</h4>
+                    <p>Crystal 32-bit float audio for vows with zero distortion.</p>
+                  </div>
+                </div>
+
+                <div class="spec-card-gold">
+                  <div class="spec-card-icon-gold"><i data-lucide="drone"></i></div>
+                  <div class="spec-card-content">
+                    <h4>FPV Drone Swoops</h4>
+                    <p>Sweeping palace and coastal cliff aerial sequences.</p>
+                  </div>
+                </div>
+
+                <div class="spec-card-gold">
+                  <div class="spec-card-icon-gold"><i data-lucide="fast-forward"></i></div>
+                  <div class="spec-card-content">
+                    <h4>Same-Day Teaser</h4>
+                    <p>60-second high-energy teaser delivered before reception ends.</p>
+                  </div>
+                </div>
+
+                <div class="spec-card-gold">
+                  <div class="spec-card-icon-gold"><i data-lucide="disc"></i></div>
+                  <div class="spec-card-content">
+                    <h4>Full Feature Film</h4>
+                    <p>45-min documentary master + viral Instagram highlight cuts.</p>
+                  </div>
+                </div>
+              </div>
+
+              <blockquote class="item-quote-gold">
+                <i data-lucide="quote" class="quote-icon-gold"></i>
+                <p>"Cut Blend Studios transformed our wedding into an Oscar-worthy romance film. We cried rewatching it for the tenth time!"</p>
+                <cite>— Lady Catherine & Julian (Lake Como, Italy)</cite>
+              </blockquote>
+
+              <div class="item-actions">
+                <button class="btn-watch-modal-gold" data-video-title="Royal Tuscany Wedding — The Sovereign Romance" data-video-src="https://assets.mixkit.co/videos/preview/mixkit-bride-and-groom-posing-for-wedding-photos-41619-large.mp4" data-genre="Wedding Cinema" data-specs="Anamorphic Master • 4K 120P">
+                  <i data-lucide="play" class="fill-current"></i>
+                  <span>WATCH WEDDING FILM</span>
+                </button>
+                <a href="#contact" class="btn-outline-gold">Inquire Dates</a>
+              </div>
+            </div>
+
+            <!-- RIGHT: VIDEO SHOWCASE RIG -->
+            <div class="showcase-video-col scroll-fade-right">
+              <div class="video-monitor-frame-gold">
+                <div class="monitor-header">
+                  <div class="monitor-title">
+                    <span class="status-live-dot-gold"></span>
+                    <span>ROYAL TUSCANY CELEBRATION</span>
+                  </div>
+                  <div class="monitor-meta mono-text">
+                    4K UHD • 23.976 FPS
+                  </div>
+                </div>
+
+                <div class="video-player-container" data-player-id="wedding-video">
+                  <video class="showcase-video" loop muted playsinline poster="https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1200&auto=format&fit=crop">
+                    <source src="https://assets.mixkit.co/videos/preview/mixkit-bride-and-groom-posing-for-wedding-photos-41619-large.mp4" type="video/mp4">
+                  </video>
+                  
+                  <div class="video-ambient-backlight-gold"></div>
+
+                  <div class="video-overlay-hud">
+                    <div class="hud-tag-top">
+                      <span class="badge-accent-gold">DESTINATION WEDDING</span>
+                      <span class="badge-glass-gold">LAKE COMO</span>
+                    </div>
+
+                    <button class="video-center-btn-gold" aria-label="Play/Pause Video">
+                      <i data-lucide="play" class="icon-play"></i>
+                      <i data-lucide="pause" class="icon-pause hidden"></i>
+                    </button>
+
+                    <div class="video-inline-bar">
+                      <div class="inline-progress">
+                        <div class="inline-progress-fill-gold"></div>
+                      </div>
+                      <div class="inline-controls-row">
+                        <button class="inline-btn toggle-sound" aria-label="Mute / Unmute">
+                          <i data-lucide="volume-x" class="vol-muted"></i>
+                          <i data-lucide="volume-2" class="vol-active hidden"></i>
+                        </button>
+                        <span class="inline-time mono-text">00:00 / 02:45</span>
+                        <button class="inline-btn toggle-fullscreen" aria-label="Fullscreen">
+                          <i data-lucide="maximize"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="monitor-angles-strip">
+                  <span class="strip-label mono-text">ANGLES:</span>
+                  <button class="angle-btn active">MASTER CAM</button>
+                  <button class="angle-btn">GIMBAL PASS</button>
+                  <button class="angle-btn">FPV AERIAL</button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </article>
+
+
+        <!-- ==================== 02. AUTOMOTIVE & DELIVERY LAUNCHES ==================== -->
+        <article class="showcase-row portfolio-item gold-border-hover" data-category="automotive" id="automotive-films">
+          <div class="showcase-grid side-by-side reverse-on-desktop">
+            
+            <!-- RIGHT: VIDEO -->
+            <div class="showcase-video-col scroll-fade-left">
+              <div class="video-monitor-frame-gold">
+                <div class="monitor-header">
+                  <div class="monitor-title">
+                    <span class="status-live-dot-gold"></span>
+                    <span>GT3 RS TRACK LAUNCH</span>
+                  </div>
+                  <div class="monitor-meta mono-text">
+                    8K RAW • SPEED-RAMPED
+                  </div>
+                </div>
+
+                <div class="video-player-container" data-player-id="auto-video">
+                  <video class="showcase-video" loop muted playsinline poster="https://images.unsplash.com/photo-1617814076367-b759c7d7e738?q=80&w=1200&auto=format&fit=crop">
+                    <source src="https://assets.mixkit.co/videos/preview/mixkit-sports-car-driving-fast-at-sunset-41618-large.mp4" type="video/mp4">
+                  </video>
+                  
+                  <div class="video-ambient-backlight-gold"></div>
+
+                  <div class="video-overlay-hud">
+                    <div class="hud-tag-top">
+                      <span class="badge-accent-gold">HYPERCAR REVEAL</span>
+                      <span class="badge-glass-gold">TRACK & DELIVERY</span>
+                    </div>
+
+                    <div class="auto-telemetry-hud-gold">
+                      <div class="telemetry-item">
+                        <span class="tele-val-gold">2.8s</span>
+                        <span class="tele-lbl">0-100 KM/H</span>
+                      </div>
+                      <div class="telemetry-item">
+                        <span class="tele-val-gold">8,500</span>
+                        <span class="tele-lbl">MAX RPM</span>
+                      </div>
+                    </div>
+
+                    <button class="video-center-btn-gold" aria-label="Play/Pause Video">
+                      <i data-lucide="play" class="icon-play"></i>
+                      <i data-lucide="pause" class="icon-pause hidden"></i>
+                    </button>
+
+                    <div class="video-inline-bar">
+                      <div class="inline-progress">
+                        <div class="inline-progress-fill-gold"></div>
+                      </div>
+                      <div class="inline-controls-row">
+                        <button class="inline-btn toggle-sound" aria-label="Mute / Unmute">
+                          <i data-lucide="volume-x" class="vol-muted"></i>
+                          <i data-lucide="volume-2" class="vol-active hidden"></i>
+                        </button>
+                        <span class="inline-time mono-text">00:00 / 01:30</span>
+                        <button class="inline-btn toggle-fullscreen" aria-label="Fullscreen">
+                          <i data-lucide="maximize"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="monitor-angles-strip">
+                  <span class="strip-label mono-text">MODES:</span>
+                  <button class="angle-btn active">TRACK PURSUIT</button>
+                  <button class="angle-btn">WHEEL MACRO</button>
+                  <button class="angle-btn">EXHAUST DECIBEL</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- LEFT: INFO -->
+            <div class="showcase-info-col scroll-fade-right">
+              <div class="item-chapter-badge-gold">
+                <span class="chapter-num-gold">02</span>
+                <span class="chapter-title">HIGH-OCTANE COMMERCIALS</span>
+              </div>
+              
+              <h3 class="item-heading">
+                Supercar Commercials & <span class="text-gold-gradient">VIP Car Delivery Films</span>
+              </h3>
+
+              <div class="item-tags-row">
+                <span class="meta-tag-gold"><i data-lucide="zap"></i> Chase Car Rig</span>
+                <span class="meta-tag-gold"><i data-lucide="sliders"></i> Exhaust Sound Design</span>
+                <span class="meta-tag-gold"><i data-lucide="gauge"></i> 1000 FPS Slow-Mo</span>
+              </div>
+
+              <p class="item-description">
+                From pulse-pounding track commercials to emotional luxury handover ceremonies, we craft cinematic experiences that ignite adrenaline with bass-shaking engine exhaust audio design.
+              </p>
+
+              <div class="item-specs-grid">
+                <div class="spec-card-gold">
+                  <div class="spec-card-icon-gold"><i data-lucide="compass"></i></div>
+                  <div class="spec-card-content">
+                    <h4>Speed Ramping</h4>
+                    <p>Transitions from 120fps drift glides to lightning-fast cuts.</p>
+                  </div>
+                </div>
+
+                <div class="spec-card-gold">
+                  <div class="spec-card-icon-gold"><i data-lucide="volume-2"></i></div>
+                  <div class="spec-card-content">
+                    <h4>Custom Foley</h4>
+                    <p>Binaural studio-mastered twin-turbo engine notes and pops.</p>
+                  </div>
+                </div>
+
+                <div class="spec-card-gold">
+                  <div class="spec-card-icon-gold"><i data-lucide="package-check"></i></div>
+                  <div class="spec-card-content">
+                    <h4>Delivery Edits</h4>
+                    <p>Bespoke handover reveal film tailored for private collectors.</p>
+                  </div>
+                </div>
+
+                <div class="spec-card-gold">
+                  <div class="spec-card-icon-gold"><i data-lucide="monitor"></i></div>
+                  <div class="spec-card-content">
+                    <h4>Broadcast & 9:16</h4>
+                    <p>TV commercial master + vertical viral social edits.</p>
+                  </div>
+                </div>
+              </div>
+
+              <blockquote class="item-quote-gold">
+                <i data-lucide="quote" class="quote-icon-gold"></i>
+                <p>"The delivery launch video generated over 4.2M views in 72 hours. Cut Blend's automotive work is unmatched."</p>
+                <cite>— Marcus Vance (Apex Exotic Motors)</cite>
+              </blockquote>
+
+              <div class="item-actions">
+                <button class="btn-watch-modal-gold" data-video-title="GT3 RS Delivery & Track Unleashed" data-video-src="https://assets.mixkit.co/videos/preview/mixkit-sports-car-driving-fast-at-sunset-41618-large.mp4" data-genre="Automotive Commercial" data-specs="8K Cinema Body • Custom Foley">
+                  <i data-lucide="play" class="fill-current"></i>
+                  <span>PLAY AUTOMOTIVE FILM</span>
+                </button>
+                <a href="#contact" class="btn-outline-gold">Book Shoot</a>
+              </div>
+            </div>
+
+          </div>
+        </article>
+
+
+        <!-- ==================== 03. LUXURY HOTELS, RESORTS & LIVING ==================== -->
+        <article class="showcase-row portfolio-item gold-border-hover" data-category="hotel" id="hotel-resort-cinematography">
+          <div class="showcase-grid side-by-side">
+            
+            <!-- LEFT: INFO -->
+            <div class="showcase-info-col scroll-fade-left">
+              <div class="item-chapter-badge-gold">
+                <span class="chapter-num-gold">03</span>
+                <span class="chapter-title">LUXURY HOSPITALITY & LIVING</span>
+              </div>
+              
+              <h3 class="item-heading">
+                5-Star Resorts, <span class="text-gold-gradient">Hotels & Architectural Sanctuaries</span>
+              </h3>
+
+              <div class="item-tags-row">
+                <span class="meta-tag-gold"><i data-lucide="sun"></i> Golden Hour Light Sculpting</span>
+                <span class="meta-tag-gold"><i data-lucide="sparkles"></i> HDR10+ Mastered</span>
+                <span class="meta-tag-gold"><i data-lucide="compass"></i> Gimbal Walkthroughs</span>
+              </div>
+
+              <p class="item-description">
+                Luxury travelers book feelings. We craft sensory hospitality brand films that make viewers feel the ocean breeze, the poolside fire pits, and the serene exclusivity of premier private islands.
+              </p>
+
+              <div class="item-specs-grid">
+                <div class="spec-card-gold">
+                  <div class="spec-card-icon-gold"><i data-lucide="utensils"></i></div>
+                  <div class="spec-card-content">
+                    <h4>Culinary Macros</h4>
+                    <p>Sensory cinematography of gourmet gastronomy & mixology.</p>
+                  </div>
+                </div>
+
+                <div class="spec-card-gold">
+                  <div class="spec-card-icon-gold"><i data-lucide="wind"></i></div>
+                  <div class="spec-card-content">
+                    <h4>Aerial Panoramas</h4>
+                    <p>Sunrise cliffside, infinity pool, and private bay captures.</p>
+                  </div>
+                </div>
+
+                <div class="spec-card-gold">
+                  <div class="spec-card-icon-gold"><i data-lucide="eye"></i></div>
+                  <div class="spec-card-content">
+                    <h4>Architecture</h4>
+                    <p>Precision natural light highlighting interior design textures.</p>
+                  </div>
+                </div>
+
+                <div class="spec-card-gold">
+                  <div class="spec-card-icon-gold"><i data-lucide="globe"></i></div>
+                  <div class="spec-card-content">
+                    <h4>Global Suite</h4>
+                    <p>Multi-language promotional suites with bespoke narration.</p>
+                  </div>
+                </div>
+              </div>
+
+              <blockquote class="item-quote-gold">
+                <i data-lucide="quote" class="quote-icon-gold"></i>
+                <p>"Our direct booking revenue jumped 34% after featuring Cut Blend's cinematic resort film. Absolute masters of elegance."</p>
+                <cite>— Elena Rostova (Azure Horizon Maldives)</cite>
+              </blockquote>
+
+              <div class="item-actions">
+                <button class="btn-watch-modal-gold" data-video-title="Azure Horizon Private Island — Visual Odyssey" data-video-src="https://assets.mixkit.co/videos/preview/mixkit-aerial-view-of-a-luxury-hotel-resort-with-swimming-pool-42171-large.mp4" data-genre="Hospitality & Architecture" data-specs="Cinema Rig • HDR10+">
+                  <i data-lucide="play" class="fill-current"></i>
+                  <span>EXPERIENCE RESORT FILM</span>
+                </button>
+                <a href="#contact" class="btn-outline-gold">Inquire Hospitality</a>
+              </div>
+            </div>
+
+            <!-- RIGHT: VIDEO -->
+            <div class="showcase-video-col scroll-fade-right">
+              <div class="video-monitor-frame-gold">
+                <div class="monitor-header">
+                  <div class="monitor-title">
+                    <span class="status-live-dot-gold"></span>
+                    <span>AZURE RESORT ODYSSEY</span>
+                  </div>
+                  <div class="monitor-meta mono-text">
+                    4K HDR • 60 FPS
+                  </div>
+                </div>
+
+                <div class="video-player-container" data-player-id="hotel-video">
+                  <video class="showcase-video" loop muted playsinline poster="https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1200&auto=format&fit=crop">
+                    <source src="https://assets.mixkit.co/videos/preview/mixkit-aerial-view-of-a-luxury-hotel-resort-with-swimming-pool-42171-large.mp4" type="video/mp4">
+                  </video>
+                  
+                  <div class="video-ambient-backlight-gold"></div>
+
+                  <div class="video-overlay-hud">
+                    <div class="hud-tag-top">
+                      <span class="badge-accent-gold">LUXURY RESORT & SPA</span>
+                      <span class="badge-glass-gold">MALDIVES</span>
+                    </div>
+
+                    <button class="video-center-btn-gold" aria-label="Play/Pause Video">
+                      <i data-lucide="play" class="icon-play"></i>
+                      <i data-lucide="pause" class="icon-pause hidden"></i>
+                    </button>
+
+                    <div class="video-inline-bar">
+                      <div class="inline-progress">
+                        <div class="inline-progress-fill-gold"></div>
+                      </div>
+                      <div class="inline-controls-row">
+                        <button class="inline-btn toggle-sound" aria-label="Mute / Unmute">
+                          <i data-lucide="volume-x" class="vol-muted"></i>
+                          <i data-lucide="volume-2" class="vol-active hidden"></i>
+                        </button>
+                        <span class="inline-time mono-text">00:00 / 03:12</span>
+                        <button class="inline-btn toggle-fullscreen" aria-label="Fullscreen">
+                          <i data-lucide="maximize"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="monitor-angles-strip">
+                  <span class="strip-label mono-text">VIEWS:</span>
+                  <button class="angle-btn active">OVERWATER VILLA</button>
+                  <button class="angle-btn">SUNSET POOL</button>
+                  <button class="angle-btn">SPA SANCTUARY</button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </article>
+
+
+        <!-- ==================== 04. INFLUENCERS, FASHION & VIRAL REELS ==================== -->
+        <article class="showcase-row portfolio-item gold-border-hover" data-category="influencer" id="influencer-fashion-reels">
+          <div class="showcase-grid side-by-side reverse-on-desktop">
+            
+            <!-- RIGHT: VIDEO -->
+            <div class="showcase-video-col scroll-fade-left">
+              <div class="video-monitor-frame-gold dual-frame">
+                <div class="monitor-header">
+                  <div class="monitor-title">
+                    <span class="status-live-dot-gold"></span>
+                    <span>PARIS FASHION REEL</span>
+                  </div>
+                  <div class="monitor-meta mono-text">
+                    VIRAL PACING • 9:16 + 16:9
+                  </div>
+                </div>
+
+                <div class="video-player-container vertical-look" data-player-id="influencer-video">
+                  <video class="showcase-video" loop muted playsinline poster="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1200&auto=format&fit=crop">
+                    <source src="https://assets.mixkit.co/videos/preview/mixkit-fashion-model-in-neon-lights-41980-large.mp4" type="video/mp4">
+                  </video>
+                  
+                  <div class="video-ambient-backlight-gold"></div>
+
+                  <div class="video-overlay-hud">
+                    <div class="hud-tag-top">
+                      <span class="badge-accent-gold">FASHION & REELS</span>
+                      <span class="badge-glass-gold">PARIS • MILAN</span>
+                    </div>
+
+                    <div class="social-metric-badge-gold">
+                      <i data-lucide="trending-up"></i>
+                      <span>18.4M Views • 1.2M Likes</span>
+                    </div>
+
+                    <button class="video-center-btn-gold" aria-label="Play/Pause Video">
+                      <i data-lucide="play" class="icon-play"></i>
+                      <i data-lucide="pause" class="icon-pause hidden"></i>
+                    </button>
+
+                    <div class="video-inline-bar">
+                      <div class="inline-progress">
+                        <div class="inline-progress-fill-gold"></div>
+                      </div>
+                      <div class="inline-controls-row">
+                        <button class="inline-btn toggle-sound" aria-label="Mute / Unmute">
+                          <i data-lucide="volume-x" class="vol-muted"></i>
+                          <i data-lucide="volume-2" class="vol-active hidden"></i>
+                        </button>
+                        <span class="inline-time mono-text">00:00 / 00:45</span>
+                        <button class="inline-btn toggle-fullscreen" aria-label="Fullscreen">
+                          <i data-lucide="maximize"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="monitor-angles-strip">
+                  <span class="strip-label mono-text">RATIO:</span>
+                  <button class="angle-btn active">9:16 REELS</button>
+                  <button class="angle-btn">16:9 4K</button>
+                  <button class="angle-btn">4:5 FEED</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- LEFT: INFO -->
+            <div class="showcase-info-col scroll-fade-right">
+              <div class="item-chapter-badge-gold">
+                <span class="chapter-num-gold">04</span>
+                <span class="chapter-title">HIGH-RETENTION VIRAL MEDIA</span>
+              </div>
+              
+              <h3 class="item-heading">
+                Influencer Campaigns, <span class="text-gold-gradient">Fashion Runway & High-Energy Shorts</span>
+              </h3>
+
+              <div class="item-tags-row">
+                <span class="meta-tag-gold"><i data-lucide="zap"></i> Hook Optimization</span>
+                <span class="meta-tag-gold"><i data-lucide="scissors"></i> Kinetic Match-Cuts</span>
+                <span class="meta-tag-gold"><i data-lucide="sparkles"></i> Porcelain Skin Grade</span>
+              </div>
+
+              <p class="item-description">
+                In the algorithm era, you have 1.5 seconds to hook a viewer. We engineer high-retention vertical short-form cinema that mesmerizes audiences and multiplies brand sponsorships.
+              </p>
+
+              <div class="item-specs-grid">
+                <div class="spec-card-gold">
+                  <div class="spec-card-icon-gold"><i data-lucide="flame"></i></div>
+                  <div class="spec-card-content">
+                    <h4>Micro-Pacing</h4>
+                    <p>Beat-synced whooshes, risers, and magnetic sound textures.</p>
+                  </div>
+                </div>
+
+                <div class="spec-card-gold">
+                  <div class="spec-card-icon-gold"><i data-lucide="sparkles"></i></div>
+                  <div class="spec-card-content">
+                    <h4>Beauty Grade</h4>
+                    <p>Vibrant wardrobe colors and film flare leaks.</p>
+                  </div>
+                </div>
+
+                <div class="spec-card-gold">
+                  <div class="spec-card-icon-gold"><i data-lucide="repeat"></i></div>
+                  <div class="spec-card-content">
+                    <h4>Loop Design</h4>
+                    <p>Seamless loop tricks to boost algorithm replay metrics.</p>
+                  </div>
+                </div>
+
+                <div class="spec-card-gold">
+                  <div class="spec-card-icon-gold"><i data-lucide="share-2"></i></div>
+                  <div class="spec-card-content">
+                    <h4>Batch Delivery</h4>
+                    <p>Deliver 30 viral reels + 10 Shorts from a single shoot day.</p>
+                  </div>
+                </div>
+              </div>
+
+              <blockquote class="item-quote-gold">
+                <i data-lucide="quote" class="quote-icon-gold"></i>
+                <p>"Working with Cut Blend tripled my engagement overnight. They make my fashion content look like high-budget Milan television commercials."</p>
+                <cite>— Sophia Kova (Fashion Creator, 3.8M Followers)</cite>
+              </blockquote>
+
+              <div class="item-actions">
+                <button class="btn-watch-modal-gold" data-video-title="Paris Haute Couture — Kinetic Reel Series" data-video-src="https://assets.mixkit.co/videos/preview/mixkit-fashion-model-in-neon-lights-41980-large.mp4" data-genre="Influencer & Runway" data-specs="120 FPS • Cyber Grade">
+                  <i data-lucide="play" class="fill-current"></i>
+                  <span>VIEW REELS</span>
+                </button>
+                <a href="#contact" class="btn-outline-gold">Book Package</a>
+              </div>
+            </div>
+
+          </div>
+        </article>
+
+
+        <!-- ==================== 05. COMMERCIAL BRAND FILMS & PRODUCT MACRO ==================== -->
+        <article class="showcase-row portfolio-item gold-border-hover" data-category="commercial" id="commercial-product-films">
+          <div class="showcase-grid side-by-side">
+            
+            <!-- LEFT: INFO -->
+            <div class="showcase-info-col scroll-fade-left">
+              <div class="item-chapter-badge-gold">
+                <span class="chapter-num-gold">05</span>
+                <span class="chapter-title">COMMERCIAL & PRODUCT LAUNCHES</span>
+              </div>
+              
+              <h3 class="item-heading">
+                Flagship Tech, <span class="text-gold-gradient">Luxury Watches & Macro Product Films</span>
+              </h3>
+
+              <div class="item-tags-row">
+                <span class="meta-tag-gold"><i data-lucide="zoom-in"></i> 2:1 Probe Optics</span>
+                <span class="meta-tag-gold"><i data-lucide="layers"></i> Motion Control Turntables</span>
+                <span class="meta-tag-gold"><i data-lucide="sparkles"></i> 3D Particle Integration</span>
+              </div>
+
+              <p class="item-description">
+                From intricate Swiss watch tourbillons to high-tech hardware and perfume mist, our studio utilizes precision motion control rigs and robotic sliders to create hypnotic product visuals.
+              </p>
+
+              <div class="item-specs-grid">
+                <div class="spec-card-gold">
+                  <div class="spec-card-icon-gold"><i data-lucide="target"></i></div>
+                  <div class="spec-card-content">
+                    <h4>Microscopic Detail</h4>
+                    <p>Probe lenses illuminating extreme product textures.</p>
+                  </div>
+                </div>
+
+                <div class="spec-card-gold">
+                  <div class="spec-card-icon-gold"><i data-lucide="sliders"></i></div>
+                  <div class="spec-card-content">
+                    <h4>Motion Control</h4>
+                    <p>Repeatable slider moves for seamless VFX passes.</p>
+                  </div>
+                </div>
+
+                <div class="spec-card-gold">
+                  <div class="spec-card-icon-gold"><i data-lucide="sun"></i></div>
+                  <div class="spec-card-content">
+                    <h4>Studio Lighting</h4>
+                    <p>High-output fixtures with specular highlight control.</p>
+                  </div>
+                </div>
+
+                <div class="spec-card-gold">
+                  <div class="spec-card-icon-gold"><i data-lucide="shield-check"></i></div>
+                  <div class="spec-card-content">
+                    <h4>Full Rights</h4>
+                    <p>Global multi-platform broadcast and billboard clearance.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="item-actions">
+                <button class="btn-watch-modal-gold" data-video-title="Macro Optics & Cinema Hardware Launch — Master Product Film" data-video-src="https://assets.mixkit.co/videos/preview/mixkit-camera-lens-focusing-in-the-dark-41710-large.mp4" data-genre="Commercial Product" data-specs="Motion Control • Macro Probe">
+                  <i data-lucide="play" class="fill-current"></i>
+                  <span>PLAY HARDWARE REEL</span>
+                </button>
+                <a href="#contact" class="btn-outline-gold">Request Deck</a>
+              </div>
+            </div>
+
+            <!-- RIGHT: VIDEO -->
+            <div class="showcase-video-col scroll-fade-right">
+              <div class="video-monitor-frame-gold">
+                <div class="monitor-header">
+                  <div class="monitor-title">
+                    <span class="status-live-dot-gold"></span>
+                    <span>HARDWARE COMMERCIAL</span>
+                  </div>
+                  <div class="monitor-meta mono-text">
+                    MACRO PROBE • 120 FPS
+                  </div>
+                </div>
+
+                <div class="video-player-container" data-player-id="commercial-video">
+                  <video class="showcase-video" loop muted playsinline poster="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=1200&auto=format&fit=crop">
+                    <source src="https://assets.mixkit.co/videos/preview/mixkit-camera-lens-focusing-in-the-dark-41710-large.mp4" type="video/mp4">
+                  </video>
+                  
+                  <div class="video-ambient-backlight-gold"></div>
+
+                  <div class="video-overlay-hud">
+                    <div class="hud-tag-top">
+                      <span class="badge-accent-gold">PRODUCT COMMERCIAL</span>
+                      <span class="badge-glass-gold">FLAGSHIP RIG</span>
+                    </div>
+
+                    <button class="video-center-btn-gold" aria-label="Play/Pause Video">
+                      <i data-lucide="play" class="icon-play"></i>
+                      <i data-lucide="pause" class="icon-pause hidden"></i>
+                    </button>
+
+                    <div class="video-inline-bar">
+                      <div class="inline-progress">
+                        <div class="inline-progress-fill-gold"></div>
+                      </div>
+                      <div class="inline-controls-row">
+                        <button class="inline-btn toggle-sound" aria-label="Mute / Unmute">
+                          <i data-lucide="volume-x" class="vol-muted"></i>
+                          <i data-lucide="volume-2" class="vol-active hidden"></i>
+                        </button>
+                        <span class="inline-time mono-text">00:00 / 01:15</span>
+                        <button class="inline-btn toggle-fullscreen" aria-label="Fullscreen">
+                          <i data-lucide="maximize"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="monitor-angles-strip">
+                  <span class="strip-label mono-text">LAYERS:</span>
+                  <button class="angle-btn active">FINAL GRADE</button>
+                  <button class="angle-btn">RAW LOG</button>
+                  <button class="angle-btn">3D WIREFRAME</button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </article>
+
+      </section>
+
+
+      <!-- =========================================================================
+           NEW FEATURE: LIVE INSTAGRAM FEED & VIRAL REELS INTEGRATION
+           ========================================================================= -->
+      <section class="instagram-section" id="instagram-feed">
+        <div class="instagram-container">
+          
+          <!-- Instagram Profile Header Card -->
+          <div class="ig-profile-header-card" data-tilt>
+            <div class="ig-avatar-wrap">
+              <div class="ig-avatar-ring">
+                <div class="ig-avatar-inner">
+                  <span class="ig-symbol">CB</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="ig-profile-info">
+              <div class="ig-title-row">
+                <h3 class="ig-handle">@cutblend.studios</h3>
+                <span class="ig-verified-badge" title="Verified Studio"><i data-lucide="check-circle-2"></i></span>
+                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" class="btn-ig-follow">
+                  <i data-lucide="instagram"></i>
+                  <span>Follow</span>
+                </a>
+              </div>
+
+              <div class="ig-stats-row">
+                <span><strong>428</strong> Posts</span>
+                <span><strong>148K</strong> Followers</span>
+                <span><strong>18.4M</strong> Monthly Reach</span>
+              </div>
+
+              <p class="ig-bio">
+                ✨ CUT BLEND STUDIOS — Visionary Video Editing & Photography<br>
+                🎥 Worldwide Luxury Weddings • Supercar Launches • Viral Fashion Reels<br>
+                📍 Beverly Hills • London • Milan • Dubai | 📩 Direct Booking Below
+              </p>
+            </div>
+          </div>
+
+          <!-- Section Title -->
+          <div class="ig-section-title-wrap text-center">
+            <h2 class="section-title-large">
+              LIVE FROM <span class="hero-gold-gradient-text">INSTAGRAM</span>
+            </h2>
+            <p class="section-lead">Explore our viral short-form reels, behind-the-scenes moments, and color breakdowns.</p>
+          </div>
+
+          <!-- Instagram Grid of Reels & Photos -->
+          <div class="ig-reels-grid">
+            
+            <!-- IG Post 1 (Wedding Reel) -->
+            <div class="ig-card" data-tilt>
+              <div class="ig-media-wrap">
+                <img src="https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=800&auto=format&fit=crop" alt="Lake Como Wedding Reel" class="ig-img">
+                <div class="ig-overlay-hover">
+                  <div class="ig-reel-icon"><i data-lucide="play" class="fill-current"></i></div>
+                  <div class="ig-hover-stats">
+                    <span><i data-lucide="heart" class="fill-current"></i> 48.2K</span>
+                    <span><i data-lucide="message-circle" class="fill-current"></i> 1,420</span>
+                  </div>
+                  <span class="ig-tag-badge">LAKE COMO WEDDING</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- IG Post 2 (Supercar Reel) -->
+            <div class="ig-card" data-tilt>
+              <div class="ig-media-wrap">
+                <img src="https://images.unsplash.com/photo-1617814076367-b759c7d7e738?q=80&w=800&auto=format&fit=crop" alt="GT3 RS Delivery Reel" class="ig-img">
+                <div class="ig-overlay-hover">
+                  <div class="ig-reel-icon"><i data-lucide="play" class="fill-current"></i></div>
+                  <div class="ig-hover-stats">
+                    <span><i data-lucide="heart" class="fill-current"></i> 92.6K</span>
+                    <span><i data-lucide="message-circle" class="fill-current"></i> 3,810</span>
+                  </div>
+                  <span class="ig-tag-badge">HYPERCAR REVEAL</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- IG Post 3 (Fashion Week) -->
+            <div class="ig-card" data-tilt>
+              <div class="ig-media-wrap">
+                <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=800&auto=format&fit=crop" alt="Milan Fashion Week Reel" class="ig-img">
+                <div class="ig-overlay-hover">
+                  <div class="ig-reel-icon"><i data-lucide="play" class="fill-current"></i></div>
+                  <div class="ig-hover-stats">
+                    <span><i data-lucide="heart" class="fill-current"></i> 64.1K</span>
+                    <span><i data-lucide="message-circle" class="fill-current"></i> 2,190</span>
+                  </div>
+                  <span class="ig-tag-badge">PARIS RUNWAY</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- IG Post 4 (Maldives Resort) -->
+            <div class="ig-card" data-tilt>
+              <div class="ig-media-wrap">
+                <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=800&auto=format&fit=crop" alt="Maldives Private Bay" class="ig-img">
+                <div class="ig-overlay-hover">
+                  <div class="ig-reel-icon"><i data-lucide="play" class="fill-current"></i></div>
+                  <div class="ig-hover-stats">
+                    <span><i data-lucide="heart" class="fill-current"></i> 35.8K</span>
+                    <span><i data-lucide="message-circle" class="fill-current"></i> 890</span>
+                  </div>
+                  <span class="ig-tag-badge">MALDIVES LUXURY</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- IG Post 5 (Color Grade BTS) -->
+            <div class="ig-card" data-tilt>
+              <div class="ig-media-wrap">
+                <img src="https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=800&auto=format&fit=crop" alt="Color Lab LUT BTS" class="ig-img">
+                <div class="ig-overlay-hover">
+                  <div class="ig-reel-icon"><i data-lucide="play" class="fill-current"></i></div>
+                  <div class="ig-hover-stats">
+                    <span><i data-lucide="heart" class="fill-current"></i> 51.4K</span>
+                    <span><i data-lucide="message-circle" class="fill-current"></i> 1,650</span>
+                  </div>
+                  <span class="ig-tag-badge">COLOR LAB BTS</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- IG Post 6 (Watch Macro Launch) -->
+            <div class="ig-card" data-tilt>
+              <div class="ig-media-wrap">
+                <img src="https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=800&auto=format&fit=crop" alt="Swiss Watch Commercial" class="ig-img">
+                <div class="ig-overlay-hover">
+                  <div class="ig-reel-icon"><i data-lucide="play" class="fill-current"></i></div>
+                  <div class="ig-hover-stats">
+                    <span><i data-lucide="heart" class="fill-current"></i> 41.9K</span>
+                    <span><i data-lucide="message-circle" class="fill-current"></i> 920</span>
+                  </div>
+                  <span class="ig-tag-badge">COMMERCIAL MACRO</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Bottom IG Follow Banner -->
+          <div class="ig-bottom-banner">
+            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" class="btn-primary-magnetic-gold">
+              <span class="btn-bg"></span>
+              <span class="btn-content">
+                <i data-lucide="instagram"></i>
+                <span>EXPLORE ALL REELS ON INSTAGRAM</span>
+              </span>
+            </a>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ==============================================
+           INTERACTIVE COLOR GRADING & LUT LAB (BEFORE / AFTER SLIDER)
+           ============================================== -->
+      <section class="color-lab-section" id="colorgrade">
+        <div class="color-lab-container">
+          <div class="section-header-pill-gold">
+            <span class="pill-dot-gold"></span>
+            <span>COLOR SCIENCE LAB</span>
+          </div>
+          <h2 class="section-title-large text-center">
+            THE MAGIC OF <span class="hero-gold-gradient-text">COLOR GRADING</span>
+          </h2>
+          <p class="section-lead text-center max-w-2xl mx-auto">
+            Drag the interactive slider below to witness flat sensor RAW footage transform into warm, rich, film print perfection.
+          </p>
+
+          <div class="grade-slider-wrapper-gold" id="gradeSliderWrapper">
+            <div class="grade-image-container">
+              <div class="grade-layer grade-after">
+                <img src="https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=1600&auto=format&fit=crop" alt="Color Graded Master" class="grade-img">
+                <div class="grade-badge-gold after-badge">
+                  <i data-lucide="sparkles"></i>
+                  <span>CUT BLEND FILM PRINT (AFTER)</span>
+                </div>
+              </div>
+
+              <div class="grade-layer grade-before" id="gradeBeforeLayer">
+                <img src="https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=1600&auto=format&fit=crop" alt="Flat RAW Profile" class="grade-img flat-raw-filter">
+                <div class="grade-badge-gold before-badge">
+                  <i data-lucide="camera"></i>
+                  <span>RAW FLAT LOG (BEFORE)</span>
+                </div>
+              </div>
+
+              <div class="grade-handle-gold" id="gradeHandle">
+                <div class="handle-line-gold"></div>
+                <div class="handle-circle-gold">
+                  <i data-lucide="chevrons-left-right"></i>
+                </div>
+              </div>
+            </div>
+
+            <div class="lut-presets-bar">
+              <span class="lut-label mono-text">SWITCH LOOK:</span>
+              <button class="lut-btn active" data-lut="kodak">✦ GOLDEN 35mm PRINT</button>
+              <button class="lut-btn" data-lut="teal-orange">✦ TEAL & AMBER</button>
+              <button class="lut-btn" data-lut="monochrome">✦ PLATINUM NOIR</button>
+              <button class="lut-btn" data-lut="moody">✦ OBSIDIAN EMERALD</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ==============================================
+           WORKFLOW PIPELINE & TIMELINE
+           ============================================== -->
+      <section class="workflow-section" id="workflow">
+        <div class="workflow-container">
+          <div class="section-header-pill-gold">
+            <span class="pill-dot-gold"></span>
+            <span>PRODUCTION PIPELINE</span>
+          </div>
+          <h2 class="section-title-large text-center">
+            HOW WE CRAFT <span class="hero-gold-gradient-text">PERFECTION</span>
+          </h2>
+          
+          <div class="timeline-steps-wrap">
+            
+            <div class="timeline-step" data-step="01">
+              <div class="step-counter-gold">01</div>
+              <div class="step-card-gold">
+                <span class="step-phase-gold">PHASE 01</span>
+                <h3 class="step-title">Moodboard & Concept</h3>
+                <p class="step-desc">Visual language, color palette, pacing references, and tailored shot lists for your brand or event.</p>
+                <div class="step-tags-gold"><span>Concept Deck</span><span>Scouting</span><span>Script</span></div>
+              </div>
+            </div>
+
+            <div class="timeline-step" data-step="02">
+              <div class="step-counter-gold">02</div>
+              <div class="step-card-gold">
+                <span class="step-phase-gold">PHASE 02</span>
+                <h3 class="step-title">Cinema Production</h3>
+                <p class="step-desc">On location with multi-camera cinema packages, wireless director monitors, and specialized lighting.</p>
+                <div class="step-tags-gold"><span>4K 120P RAW</span><span>Gimbal & FPV</span><span>32-Bit Audio</span></div>
+              </div>
+            </div>
+
+            <div class="timeline-step" data-step="03">
+              <div class="step-counter-gold">03</div>
+              <div class="step-card-gold">
+                <span class="step-phase-gold">PHASE 03</span>
+                <h3 class="step-title">Editorial Cut</h3>
+                <p class="step-desc">Rhythm is everything. Assembling the narrative, beat-syncing scores, and building emotion frame-by-frame.</p>
+                <div class="step-tags-gold"><span>Rough Cut</span><span>Music License</span><span>Pacing</span></div>
+              </div>
+            </div>
+
+            <div class="timeline-step" data-step="04">
+              <div class="step-counter-gold">04</div>
+              <div class="step-card-gold">
+                <span class="step-phase-gold">PHASE 04</span>
+                <h3 class="step-title">Color, Sound & Master</h3>
+                <p class="step-desc">Color grading, custom Foley sound effects, dialog sweetening, 4K mastering, and vertical social cutdowns.</p>
+                <div class="step-tags-gold"><span>Master ProRes</span><span>Sound Design</span><span>Social 9:16</span></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ==============================================
+           CONTACT & INQUIRY FORM
+           ============================================== -->
+      <section class="contact-section" id="contact">
+        <div class="contact-container">
+          <div class="contact-grid">
+            
+            <div class="contact-info-col">
+              <div class="section-header-pill-gold">
+                <span class="pill-dot-gold"></span>
+                <span>LET'S CREATE</span>
+              </div>
+              <h2 class="section-title-large">
+                START YOUR <span class="hero-gold-gradient-text">PROJECT</span>
+              </h2>
+              <p class="contact-lead">
+                Luxury weddings, supercar launches, resort brand films, and fashion campaigns worldwide.
+              </p>
+
+              <div class="contact-details-box">
+                <div class="contact-item">
+                  <div class="contact-icon-gold"><i data-lucide="mail"></i></div>
+                  <div>
+                    <span class="contact-lbl">PRODUCTION EMAIL</span>
+                    <a href="mailto:productions@cutblend.cinema" class="contact-val">productions@cutblend.cinema</a>
+                  </div>
+                </div>
+
+                <div class="contact-item">
+                  <div class="contact-icon-gold"><i data-lucide="instagram"></i></div>
+                  <div>
+                    <span class="contact-lbl">INSTAGRAM DM</span>
+                    <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" class="contact-val">@cutblend.studios</a>
+                  </div>
+                </div>
+
+                <div class="contact-item">
+                  <div class="contact-icon-gold"><i data-lucide="map-pin"></i></div>
+                  <div>
+                    <span class="contact-lbl">LOCATIONS</span>
+                    <p class="contact-val">Los Angeles • London • Dubai • Milan</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="guarantee-badges">
+                <div class="g-badge"><i data-lucide="shield-check"></i> Worldwide Travel Ready</div>
+                <div class="g-badge"><i data-lucide="clock"></i> Rush Delivery Option</div>
+                <div class="g-badge"><i data-lucide="award"></i> 100% Satisfaction Guarantee</div>
+              </div>
+            </div>
+
+            <div class="contact-form-col">
+              <div class="form-card-glass-gold">
+                <div class="form-header">
+                  <h3>PROJECT INQUIRY</h3>
+                  <span class="mono-text text-gold-accent">2-HOUR RESPONSE</span>
+                </div>
+
+                <form id="projectInquiryForm" class="inquiry-form">
+                  <div class="form-group">
+                    <label for="clientName">Name / Brand *</label>
+                    <input type="text" id="clientName" required placeholder="Your Name or Company" class="form-input">
+                  </div>
+
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="clientEmail">Email *</label>
+                      <input type="email" id="clientEmail" required placeholder="name@domain.com" class="form-input">
+                    </div>
+                    <div class="form-group">
+                      <label for="clientInstagram">Instagram Handle</label>
+                      <input type="text" id="clientInstagram" placeholder="@yourhandle" class="form-input">
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label>Discipline *</label>
+                    <div class="radio-pill-group">
+                      <label class="radio-pill">
+                        <input type="radio" name="projectType" value="Weddings" checked>
+                        <span>💍 Wedding</span>
+                      </label>
+                      <label class="radio-pill">
+                        <input type="radio" name="projectType" value="Automotive">
+                        <span>🏎️ Automotive</span>
+                      </label>
+                      <label class="radio-pill">
+                        <input type="radio" name="projectType" value="Hotels">
+                        <span>🏝️ Hotel & Resort</span>
+                      </label>
+                      <label class="radio-pill">
+                        <input type="radio" name="projectType" value="Influencer">
+                        <span>✨ Fashion & Reels</span>
+                      </label>
+                      <label class="radio-pill">
+                        <input type="radio" name="projectType" value="Commercial">
+                        <span>📦 Commercial</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="projectDetails">Project Vision & Location</label>
+                    <textarea id="projectDetails" rows="4" placeholder="Tell us about your shoot dates, location, and aesthetic mood..." class="form-input"></textarea>
+                  </div>
+
+                  <button type="submit" class="btn-submit-inquiry-gold" id="btnSubmitForm">
+                    <span>SUBMIT INQUIRY</span>
+                    <i data-lucide="send"></i>
+                  </button>
+
+                  <div id="formFeedback" class="form-feedback hidden">
+                    <div class="feedback-inner">
+                      <i data-lucide="check-circle" class="text-green-400"></i>
+                      <span>Inquiry dispatched! We will contact you within 2 hours.</span>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- ==============================================
+           MINIMAL FOOTER
+           ============================================== -->
+      <footer class="studio-footer">
+        <div class="footer-container">
+          <div class="footer-top minimal-footer-top">
+            <div class="footer-brand">
+              <a href="#" class="studio-logo">
+                <span class="logo-text">CUT<b>BLEND</b></span>
+              </a>
+              <p class="footer-tagline">
+                Pioneering high-emotion cinema, luxury commercial storytelling, and viral visuals worldwide.
+              </p>
+            </div>
+
+            <div class="footer-links-col">
+              <h4>DISCIPLINES</h4>
+              <ul>
+                <li><a href="#wedding-cinematography">Luxury Weddings</a></li>
+                <li><a href="#automotive-films">Automotive & Launches</a></li>
+                <li><a href="#hotel-resort-cinematography">Hotels & Resorts</a></li>
+                <li><a href="#influencer-fashion-reels">Influencer & Runway</a></li>
+                <li><a href="#commercial-product-films">Commercial & Macro</a></li>
+              </ul>
+            </div>
+
+            <div class="footer-links-col">
+              <h4>CONNECT</h4>
+              <div class="social-links-row">
+                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" class="soc-btn" aria-label="Instagram"><i data-lucide="instagram"></i></a>
+                <a href="#" class="soc-btn" aria-label="YouTube"><i data-lucide="youtube"></i></a>
+                <a href="#" class="soc-btn" aria-label="Vimeo"><i data-lucide="tv"></i></a>
+                <a href="#" class="soc-btn" aria-label="TikTok"><i data-lucide="music"></i></a>
+              </div>
+              <p class="mono-text text-sm text-gold-muted mt-4">@cutblend.studios</p>
+            </div>
+          </div>
+
+          <div class="footer-bottom">
+            <p class="mono-text">© 2026 CUT BLEND STUDIOS. ALL RIGHTS RESERVED.</p>
+            <div class="footer-legal">
+              <a href="#">Privacy</a>
+              <span>•</span>
+              <a href="#">Terms</a>
+            </div>
+          </div>
+        </div>
+      </footer>
+
+    </div>
+  </main>
+
+  <!-- ==============================================
+       CINEMA MODAL VIDEO PLAYER
+       ============================================== -->
+  <div class="cinema-modal" id="videoModal">
+    <div class="modal-backdrop" id="modalBackdrop"></div>
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-info">
+          <span class="modal-genre-tag" id="modalGenreTag">CINEMA</span>
+          <h3 class="modal-video-title" id="modalVideoTitle">Project Title</h3>
+          <span class="modal-specs mono-text" id="modalVideoSpecs">4K Ultra Cinema</span>
+        </div>
+        <button class="modal-close-btn" id="modalCloseBtn" aria-label="Close Player">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+
+      <div class="modal-video-box">
+        <video id="modalPlayer" class="modal-video" controls autoplay playsinline>
+          <source src="https://assets.mixkit.co/videos/preview/mixkit-cameraman-filming-with-a-professional-camera-41709-large.mp4" type="video/mp4">
+        </video>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
