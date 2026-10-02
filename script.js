@@ -147,95 +147,49 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   if (loaderVideo) {
-    // Compulsory Cinema Audio Handling (No Mute Option)
-    const loaderAudioGate = document.getElementById('loaderAudioGate');
-    const btnEnterAudioGate = document.getElementById('btnEnterAudioGate');
-
-    let videoStartedWithAudio = false;
-
-    function startExperienceWithSound() {
-      if (videoStartedWithAudio) return;
-      videoStartedWithAudio = true;
-
-      sound.init();
-      sound.playClickSound();
-
-      if (loaderAudioGate) {
-        loaderAudioGate.classList.add('gate-dismissed');
-        setTimeout(() => {
-          loaderAudioGate.style.display = 'none';
-        }, 400);
-      }
-
-      loaderVideo.muted = false;
-      loaderVideo.volume = 1.0;
-      loaderVideo.currentTime = 0;
-      loaderVideo.play().catch(() => {
-        loaderVideo.muted = true;
-        loaderVideo.play().then(() => {
-          loaderVideo.muted = false;
-        }).catch(() => {});
-      });
-
-      if (window.lucide) window.lucide.createIcons();
-    }
-
-    // Try immediate unmuted playback
+    // Direct audio video playback
     loaderVideo.muted = false;
     loaderVideo.volume = 1.0;
-    
-    const initialPlay = loaderVideo.play();
-    if (initialPlay !== undefined) {
-      initialPlay.then(() => {
-        // Unmuted playback allowed directly by browser
-        videoStartedWithAudio = true;
-        if (loaderAudioGate) {
-          loaderAudioGate.classList.add('gate-dismissed');
-          loaderAudioGate.style.display = 'none';
-        }
+
+    const playPromise = loaderVideo.play();
+    if (playPromise !== undefined) {
+      playPromise.then(() => {
+        sound.init();
       }).catch(() => {
-        // Browser requires gesture -> pause video at 0 and present Compulsory Audio Gate
-        loaderVideo.pause();
-        loaderVideo.currentTime = 0;
-        if (loaderAudioGate) loaderAudioGate.classList.remove('gate-dismissed');
+        // Fallback: start video smoothly and unmute on first user touch/click seamlessly
+        loaderVideo.muted = true;
+        loaderVideo.play().catch(() => {});
+
+        const unmuteOnInteraction = () => {
+          loaderVideo.muted = false;
+          loaderVideo.volume = 1.0;
+          sound.init();
+          window.removeEventListener('touchstart', unmuteOnInteraction);
+          window.removeEventListener('click', unmuteOnInteraction);
+          window.removeEventListener('scroll', unmuteOnInteraction);
+        };
+        window.addEventListener('touchstart', unmuteOnInteraction, { passive: true, once: true });
+        window.addEventListener('click', unmuteOnInteraction, { once: true });
+        window.addEventListener('scroll', unmuteOnInteraction, { passive: true, once: true });
       });
     }
 
-    // Click / Touch handlers for compulsory audio entry gate
-    if (btnEnterAudioGate) {
-      btnEnterAudioGate.addEventListener('click', (e) => {
-        e.stopPropagation();
-        startExperienceWithSound();
-      });
-    }
-
-    if (loaderAudioGate) {
-      loaderAudioGate.addEventListener('click', () => {
-        startExperienceWithSound();
-      });
-      loaderAudioGate.addEventListener('touchstart', () => {
-        startExperienceWithSound();
-      }, { passive: true });
-    }
-
-    // Auto-dismiss when the full 8-second video finishes playing
+    // Auto-dismiss preloader when video finishes playing (8 seconds)
     loaderVideo.addEventListener('ended', () => {
       dismissPreloader();
     });
 
-    // Time-based check for the 8-second sequence
+    // Time-based check for 8-second duration
     loaderVideo.addEventListener('timeupdate', () => {
       if (loaderVideo.duration && loaderVideo.currentTime >= loaderVideo.duration - 0.25) {
         dismissPreloader();
       }
     });
 
-    // Fallback safety (if video is playing)
-    setInterval(() => {
-      if (videoStartedWithAudio && loaderVideo.duration && loaderVideo.currentTime >= loaderVideo.duration - 0.2) {
-        dismissPreloader();
-      }
-    }, 500);
+    // Fallback safety: guarantee transition to landing page after 8.5s
+    setTimeout(() => {
+      dismissPreloader();
+    }, 8500);
   } else {
     setTimeout(dismissPreloader, 8000);
   }
