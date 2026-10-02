@@ -70,13 +70,27 @@
        ========================================================================= -->
   <section id="preloader" class="preloader">
     <div class="preloader-pure-video-wrap">
-      <video id="loaderVideo" class="preloader-video-pure" autoplay muted playsinline webkit-playsinline x5-playsinline preload="auto">
+      <video id="loaderVideo" class="preloader-video-pure" autoplay playsinline webkit-playsinline x5-playsinline preload="auto">
         <source src="loader_cinematic_16x9.mp4" type="video/mp4">
         <source src="Sony_FX_camera_product_animation_20261002122038.mp4" type="video/mp4">
         Your browser does not support HTML5 video.
       </video>
     </div>
     <div class="preloader-gold-shutter-overlay" id="loaderShutter"></div>
+
+    <!-- Audio Compulsory Status Indicator & Unmute Pill -->
+    <div class="preloader-audio-hud">
+      <button class="preloader-audio-btn" id="btnLoaderAudio" aria-label="Toggle Loader Audio">
+        <i data-lucide="volume-2" id="loaderAudioIcon"></i>
+        <span id="loaderAudioText">AUDIO ACTIVE</span>
+      </button>
+      <div class="loader-unmute-pill" id="loaderUnmutePill">
+        <span class="pulse-ring-gold"></span>
+        <i data-lucide="volume-2"></i>
+        <span>TAP ANYWHERE FOR CINEMA AUDIO</span>
+      </div>
+    </div>
+
     <button class="preloader-skip-gold" id="btnSkipLoader" aria-label="Skip video intro">
       <span>SKIP</span>
       <i data-lucide="chevron-right"></i>

@@ -147,25 +147,78 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   if (loaderVideo) {
-    // Attempt automatic playback with mobile touch unlock
-    loaderVideo.muted = true;
-    loaderVideo.setAttribute('muted', '');
-    loaderVideo.setAttribute('playsinline', '');
-    loaderVideo.setAttribute('webkit-playsinline', '');
-    
-    const startPlay = () => {
-      const playPromise = loaderVideo.play();
-      if (playPromise !== undefined) {
-        playPromise.catch(() => {
-          loaderVideo.muted = true;
-          loaderVideo.play().catch(() => {});
-        });
-      }
-    };
+    // Compulsory Cinema Audio Handling
+    const btnLoaderAudio = document.getElementById('btnLoaderAudio');
+    const loaderAudioIcon = document.getElementById('loaderAudioIcon');
+    const loaderAudioText = document.getElementById('loaderAudioText');
+    const loaderUnmutePill = document.getElementById('loaderUnmutePill');
 
-    startPlay();
-    document.addEventListener('touchstart', startPlay, { once: true });
-    document.addEventListener('click', startPlay, { once: true });
+    function enableVideoAudio() {
+      sound.init();
+      loaderVideo.muted = false;
+      loaderVideo.volume = 1.0;
+      if (loaderAudioIcon) loaderAudioIcon.setAttribute('data-lucide', 'volume-2');
+      if (loaderAudioText) loaderAudioText.textContent = 'AUDIO ACTIVE';
+      if (loaderUnmutePill) loaderUnmutePill.classList.add('hidden');
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    function toggleVideoAudio() {
+      if (loaderVideo.muted) {
+        enableVideoAudio();
+      } else {
+        loaderVideo.muted = true;
+        if (loaderAudioIcon) loaderAudioIcon.setAttribute('data-lucide', 'volume-x');
+        if (loaderAudioText) loaderAudioText.textContent = 'AUDIO MUTED';
+        if (loaderUnmutePill) loaderUnmutePill.classList.remove('hidden');
+        if (window.lucide) window.lucide.createIcons();
+      }
+    }
+
+    // Try unmuted playback first
+    loaderVideo.muted = false;
+    loaderVideo.volume = 1.0;
+    
+    const initialPlay = loaderVideo.play();
+    if (initialPlay !== undefined) {
+      initialPlay.then(() => {
+        // Unmuted playback succeeded
+        enableVideoAudio();
+      }).catch(() => {
+        // Browser blocked unmuted autoplay -> play muted and prompt user to unmute
+        loaderVideo.muted = true;
+        loaderVideo.play().catch(() => {});
+        if (loaderAudioIcon) loaderAudioIcon.setAttribute('data-lucide', 'volume-x');
+        if (loaderAudioText) loaderAudioText.textContent = 'CLICK FOR AUDIO';
+        if (loaderUnmutePill) loaderUnmutePill.classList.remove('hidden');
+        if (window.lucide) window.lucide.createIcons();
+
+        // Compulsory instant unmute on ANY user gesture (tap/click/key)
+        const unlockAudio = () => {
+          enableVideoAudio();
+          window.removeEventListener('touchstart', unlockAudio);
+          window.removeEventListener('click', unlockAudio);
+          window.removeEventListener('keydown', unlockAudio);
+        };
+        window.addEventListener('touchstart', unlockAudio, { passive: true });
+        window.addEventListener('click', unlockAudio, { passive: true });
+        window.addEventListener('keydown', unlockAudio, { passive: true });
+      });
+    }
+
+    if (btnLoaderAudio) {
+      btnLoaderAudio.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleVideoAudio();
+      });
+    }
+
+    if (loaderUnmutePill) {
+      loaderUnmutePill.addEventListener('click', (e) => {
+        e.stopPropagation();
+        enableVideoAudio();
+      });
+    }
 
     // Auto-dismiss when the full 8-second video finishes playing
     loaderVideo.addEventListener('ended', () => {
@@ -224,75 +277,82 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /* ==========================================================================
-     04. CUSTOM INTERACTIVE CURSOR & FOLLOWER
+     04. CUSTOM INTERACTIVE CURSOR & FOLLOWER (DESKTOP ONLY)
      ========================================================================== */
+  const isTouchDevice = () => window.matchMedia('(hover: none) or (pointer: coarse)').matches || window.innerWidth <= 1024;
+  
   const cursor = document.getElementById('custom-cursor');
   const follower = document.getElementById('cursor-follower');
   const cursorText = document.getElementById('cursor-text');
 
-  let mouseX = window.innerWidth / 2;
-  let mouseY = window.innerHeight / 2;
-  let followerX = mouseX;
-  let followerY = mouseY;
+  if (isTouchDevice()) {
+    if (cursor) cursor.style.display = 'none';
+    if (follower) follower.style.display = 'none';
+  } else {
+    let mouseX = window.innerWidth / 2;
+    let mouseY = window.innerHeight / 2;
+    let followerX = mouseX;
+    let followerY = mouseY;
 
-  window.addEventListener('mousemove', (e) => {
-    mouseX = e.clientX;
-    mouseY = e.clientY;
+    window.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
 
-    if (cursor) {
-      cursor.style.left = `${mouseX}px`;
-      cursor.style.top = `${mouseY}px`;
-    }
-  });
-
-  function renderCursor() {
-    followerX += (mouseX - followerX) * 0.15;
-    followerY += (mouseY - followerY) * 0.15;
-
-    if (follower) {
-      follower.style.left = `${followerX}px`;
-      follower.style.top = `${followerY}px`;
-    }
-    requestAnimationFrame(renderCursor);
-  }
-  requestAnimationFrame(renderCursor);
-
-  // Magnetic & Cursor Hover States
-  const interactiveElements = document.querySelectorAll('a, button, .cat-tab, .showcase-video, .grade-slider-wrapper, .gear-card');
-  interactiveElements.forEach((el) => {
-    el.addEventListener('mouseenter', () => {
-      document.body.classList.add('cursor-hover');
-      sound.playClickSound();
-
-      if (el.tagName === 'VIDEO' || el.classList.contains('showcase-video') || el.classList.contains('camera-card-3d')) {
-        if (cursorText) cursorText.textContent = 'PLAY REEL';
-      } else if (el.classList.contains('grade-slider-wrapper')) {
-        if (cursorText) cursorText.textContent = 'DRAG LUT';
-      } else {
-        if (cursorText) cursorText.textContent = 'VIEW';
+      if (cursor) {
+        cursor.style.left = `${mouseX}px`;
+        cursor.style.top = `${mouseY}px`;
       }
     });
 
-    el.addEventListener('mouseleave', () => {
-      document.body.classList.remove('cursor-hover');
-      if (cursorText) cursorText.textContent = 'EXPLORE';
-    });
-  });
+    function renderCursor() {
+      followerX += (mouseX - followerX) * 0.15;
+      followerY += (mouseY - followerY) * 0.15;
 
-  // Magnetic Button Effect
-  const magneticTargets = document.querySelectorAll('.magnetic-target');
-  magneticTargets.forEach((btn) => {
-    btn.addEventListener('mousemove', (e) => {
-      const rect = btn.getBoundingClientRect();
-      const x = e.clientX - rect.left - rect.width / 2;
-      const y = e.clientY - rect.top - rect.height / 2;
-      btn.style.transform = `translate(${x * 0.25}px, ${y * 0.25}px)`;
+      if (follower) {
+        follower.style.left = `${followerX}px`;
+        follower.style.top = `${followerY}px`;
+      }
+      requestAnimationFrame(renderCursor);
+    }
+    requestAnimationFrame(renderCursor);
+
+    // Magnetic & Cursor Hover States
+    const interactiveElements = document.querySelectorAll('a, button, .cat-tab, .showcase-video, .grade-slider-wrapper, .gear-card');
+    interactiveElements.forEach((el) => {
+      el.addEventListener('mouseenter', () => {
+        document.body.classList.add('cursor-hover');
+        sound.playClickSound();
+
+        if (el.tagName === 'VIDEO' || el.classList.contains('showcase-video') || el.classList.contains('camera-card-3d')) {
+          if (cursorText) cursorText.textContent = 'PLAY REEL';
+        } else if (el.classList.contains('grade-slider-wrapper')) {
+          if (cursorText) cursorText.textContent = 'DRAG LUT';
+        } else {
+          if (cursorText) cursorText.textContent = 'VIEW';
+        }
+      });
+
+      el.addEventListener('mouseleave', () => {
+        document.body.classList.remove('cursor-hover');
+        if (cursorText) cursorText.textContent = 'EXPLORE';
+      });
     });
 
-    btn.addEventListener('mouseleave', () => {
-      btn.style.transform = 'translate(0px, 0px)';
+    // Magnetic Button Effect
+    const magneticTargets = document.querySelectorAll('.magnetic-target');
+    magneticTargets.forEach((btn) => {
+      btn.addEventListener('mousemove', (e) => {
+        const rect = btn.getBoundingClientRect();
+        const x = e.clientX - rect.left - rect.width / 2;
+        const y = e.clientY - rect.top - rect.height / 2;
+        btn.style.transform = `translate(${x * 0.25}px, ${y * 0.25}px)`;
+      });
+
+      btn.addEventListener('mouseleave', () => {
+        btn.style.transform = 'translate(0px, 0px)';
+      });
     });
-  });
+  }
 
   /* ==========================================================================
      05. CAMERA HUD REAL-TIME TIMECODE & TOGGLE
@@ -381,6 +441,35 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     animateParticles();
   }
+
+  /* ==========================================================================
+     06B. MOBILE DRAWER NAVIGATION
+     ========================================================================== */
+  const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+  const mobileDrawer = document.getElementById('mobileDrawer');
+  const closeDrawerBtn = document.getElementById('closeDrawerBtn');
+  const mobileLinks = document.querySelectorAll('.mobile-link');
+
+  if (mobileMenuBtn && mobileDrawer) {
+    mobileMenuBtn.addEventListener('click', () => {
+      mobileDrawer.classList.add('open');
+      sound.playClickSound();
+    });
+  }
+
+  if (closeDrawerBtn && mobileDrawer) {
+    closeDrawerBtn.addEventListener('click', () => {
+      mobileDrawer.classList.remove('open');
+      sound.playClickSound();
+    });
+  }
+
+  mobileLinks.forEach((link) => {
+    link.addEventListener('click', () => {
+      mobileDrawer?.classList.remove('open');
+      sound.playClickSound();
+    });
+  });
 
   /* ==========================================================================
      07. GSAP SCROLL-TRIGGER ANIMATIONS (100K ANIMATION MATRIX)
