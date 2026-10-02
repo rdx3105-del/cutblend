@@ -133,7 +133,6 @@ function initStudioApp() {
      ========================================================================== */
   const preloader = document.getElementById('preloader');
   const loaderVideo = document.getElementById('loaderVideo');
-  const btnSkipLoader = document.getElementById('btnSkipLoader');
   let hasDismissed = false;
 
   function dismissPreloader() {
@@ -227,13 +226,7 @@ function initStudioApp() {
     setTimeout(dismissPreloader, 4000);
   }
 
-  // Skip button click
-  if (btnSkipLoader) {
-    btnSkipLoader.addEventListener('click', (e) => {
-      e.stopPropagation();
-      dismissPreloader();
-    });
-  }
+
 
   /* ==========================================================================
      03. LENIS SMOOTH SCROLL INITIALIZATION
