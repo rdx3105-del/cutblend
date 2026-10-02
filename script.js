@@ -147,10 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   if (loaderVideo) {
-    // Compulsory Cinema Audio Handling
-    const btnLoaderAudio = document.getElementById('btnLoaderAudio');
-    const loaderAudioIcon = document.getElementById('loaderAudioIcon');
-    const loaderAudioText = document.getElementById('loaderAudioText');
+    // Compulsory Cinema Audio Handling (No Mute Option)
     const loaderAudioGate = document.getElementById('loaderAudioGate');
     const btnEnterAudioGate = document.getElementById('btnEnterAudioGate');
 
@@ -167,7 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
         loaderAudioGate.classList.add('gate-dismissed');
         setTimeout(() => {
           loaderAudioGate.style.display = 'none';
-        }, 600);
+        }, 400);
       }
 
       loaderVideo.muted = false;
@@ -180,22 +177,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }).catch(() => {});
       });
 
-      if (loaderAudioIcon) loaderAudioIcon.setAttribute('data-lucide', 'volume-2');
-      if (loaderAudioText) loaderAudioText.textContent = 'AUDIO ACTIVE';
-      if (window.lucide) window.lucide.createIcons();
-    }
-
-    function toggleVideoAudio() {
-      if (loaderVideo.muted) {
-        loaderVideo.muted = false;
-        loaderVideo.volume = 1.0;
-        if (loaderAudioIcon) loaderAudioIcon.setAttribute('data-lucide', 'volume-2');
-        if (loaderAudioText) loaderAudioText.textContent = 'AUDIO ACTIVE';
-      } else {
-        loaderVideo.muted = true;
-        if (loaderAudioIcon) loaderAudioIcon.setAttribute('data-lucide', 'volume-x');
-        if (loaderAudioText) loaderAudioText.textContent = 'AUDIO MUTED';
-      }
       if (window.lucide) window.lucide.createIcons();
     }
 
@@ -212,9 +193,6 @@ document.addEventListener('DOMContentLoaded', () => {
           loaderAudioGate.classList.add('gate-dismissed');
           loaderAudioGate.style.display = 'none';
         }
-        if (loaderAudioIcon) loaderAudioIcon.setAttribute('data-lucide', 'volume-2');
-        if (loaderAudioText) loaderAudioText.textContent = 'AUDIO ACTIVE';
-        if (window.lucide) window.lucide.createIcons();
       }).catch(() => {
         // Browser requires gesture -> pause video at 0 and present Compulsory Audio Gate
         loaderVideo.pause();
@@ -238,13 +216,6 @@ document.addEventListener('DOMContentLoaded', () => {
       loaderAudioGate.addEventListener('touchstart', () => {
         startExperienceWithSound();
       }, { passive: true });
-    }
-
-    if (btnLoaderAudio) {
-      btnLoaderAudio.addEventListener('click', (e) => {
-        e.stopPropagation();
-        toggleVideoAudio();
-      });
     }
 
     // Auto-dismiss when the full 8-second video finishes playing
