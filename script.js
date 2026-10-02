@@ -830,7 +830,7 @@ function initStudioApp() {
   const modalVideoTitle = document.getElementById('modalVideoTitle');
   const modalGenreTag = document.getElementById('modalGenreTag');
   const modalVideoSpecs = document.getElementById('modalVideoSpecs');
-  const watchModalBtns = document.querySelectorAll('.btn-watch-modal-gold, .btn-watch-modal, #btnHeroShowreel, #btnPlayHeroVideo');
+  const watchModalBtns = document.querySelectorAll('.btn-watch-modal-gold, .btn-watch-modal, #btnHeroShowreel, #btnPlayHeroVideo, .work-card');
 
   function openCinemaModal(title, genre, specs, src) {
     if (!videoModal) return;
