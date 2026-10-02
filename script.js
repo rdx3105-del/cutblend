@@ -134,6 +134,7 @@ function initStudioApp() {
   const preloader = document.getElementById('preloader');
   const loaderVideo = document.getElementById('loaderVideo');
   const btnSkipLoader = document.getElementById('btnSkipLoader');
+  const btnAudioPrompt = document.getElementById('btnAudioPrompt');
   let hasDismissed = false;
 
   function dismissPreloader() {
@@ -191,6 +192,10 @@ function initStudioApp() {
         }
       } catch (e) {}
 
+      if (btnAudioPrompt) {
+        btnAudioPrompt.classList.add('hidden');
+      }
+
       try {
         sound.init();
       } catch (e) {}
@@ -203,6 +208,13 @@ function initStudioApp() {
     ['touchstart', 'touchend', 'click', 'pointerdown', 'keydown'].forEach(evt => {
       window.addEventListener(evt, unlockAudio, { passive: true, once: true });
     });
+
+    if (btnAudioPrompt) {
+      btnAudioPrompt.addEventListener('click', (e) => {
+        e.stopPropagation();
+        unlockAudio();
+      });
+    }
 
     if (preloader) {
       preloader.addEventListener('click', unlockAudio, { once: true });

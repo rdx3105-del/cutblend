@@ -56,10 +56,14 @@ html {
   font-family: var(--font-sans);
   background-color: var(--bg-obsidian);
   color: var(--text-gold-light);
+  touch-action: pan-y;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
   overflow-x: hidden;
+  max-width: 100vw;
+  touch-action: pan-y;
   position: relative;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
@@ -190,6 +194,66 @@ body {
     right: 18px;
     padding: 6px 14px;
     font-size: 10.5px;
+  }
+}
+
+/* Luxury Sound Activation Button */
+.preloader-audio-prompt {
+  position: absolute;
+  bottom: 34px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 120;
+  background: rgba(11, 12, 16, 0.88);
+  border: 1px solid var(--color-gold-pure);
+  color: var(--color-gold-bright);
+  padding: 10px 24px;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 0 25px rgba(212, 175, 55, 0.35);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  animation: promptAudioPulse 2s infinite ease-in-out;
+  touch-action: manipulation;
+}
+
+.preloader-audio-prompt:hover {
+  background: var(--color-gold-pure);
+  color: #000;
+  box-shadow: 0 0 35px var(--color-gold-glow);
+}
+
+.preloader-audio-prompt.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-50%) scale(0.85);
+}
+
+@keyframes promptAudioPulse {
+  0%, 100% {
+    box-shadow: 0 0 16px rgba(212, 175, 55, 0.3);
+    transform: translateX(-50%) scale(1);
+  }
+  50% {
+    box-shadow: 0 0 32px rgba(212, 175, 55, 0.65);
+    transform: translateX(-50%) scale(1.04);
+  }
+}
+
+@media (max-width: 768px) {
+  .preloader-audio-prompt {
+    bottom: 24px;
+    padding: 9px 18px;
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
   }
 }
 
